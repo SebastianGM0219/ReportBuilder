@@ -49,12 +49,9 @@ import AddIcon from "@mui/icons-material/Add";
 import GridOnIcon from "@mui/icons-material/GridOn";
 
 import { pivot } from "../../slices/query";
-// import { List } from "rsuite";
-
-import PersonAdd from "@mui/icons-material/PersonAdd";
-import Settings from "@mui/icons-material/Settings";
-import Logout from "@mui/icons-material/Logout";
 import { getTableData, setReportPivotInfo } from "../../slices/report";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -104,10 +101,7 @@ const Report = () => {
   const [selectMembersDialog, setSelectMembersDialog] = React.useState(false);
   const [selectedTable, setSelectedTable] = React.useState("");
   const [kind, setKind] = React.useState("pages");
-  const [selectedPage, setSelectedPage] = React.useState("")
-  // const [rows, setRows] = React.useState(useSelector((state) => state.report.reportRows));
-  // const [rows, setRows] = React.useState([]);
-  // const reduxRows = useSelector((state) => state.report.reportRows);
+  const [selectedPage, setSelectedPage] = React.useState("");
 
   const rows = useSelector((state) => state.report.reportRows);
   const cols = useSelector((state) => state.report.reportCols);
@@ -119,25 +113,42 @@ const Report = () => {
     (state) => state.report.reportExpandedPages
   );
 
+  const pivotResult = useSelector((state) => state.report.reportResultOfPivot);
+  console.log("pivotResult Initial", pivotResult);
   const displayRows = expandedRows.length ? expandedRows : rows;
   const displayCols = expandedCols.length ? expandedCols : cols;
   const displayPages = expandedPages.length ? expandedPages : pages;
 
   React.useEffect(() => {
-    if(pages.length)
-      setSelectedPage(pages[0].id);
-  }, [pages])
+    if (pages.length) setSelectedPage(pages[0].id);
+  }, [pages]);
 
   React.useEffect(() => {
-    if(expandedPages.length)
-      setSelectedPage(pages[0].id);
-  }, [expandedPages])
+    if (expandedPages.length) setSelectedPage(pages[0].id);
+  }, [expandedPages]);
+
+  // React.useEffect(() => {
+  //   if (pivotResult) {
+  //     const doc = new jsPDF();
+  //     doc.text(`Pages: ${selectedPage}`, 15, 15);
+  //     if (typeof doc.autoTable === "function" && !doc.autoTable.started) {
+  //       doc.autoTable({
+  //         html: "#export-data",
+  //         startY: 20,
+  //         didDrawPage: () => {
+  //           doc.save("data1.pdf");
+  //           console.log("############After doc.save");
+  //         }
+  //       });
+  //     }
+  //   }
+  // }, [pivotResult, selectedPage]);
 
   const handleSelectedPageChanged = (e) => {
     // console.log("handleSelectedPageChanged", e.target.value)
-    dispatch(setReportPivotInfo({kind:"pages", data:[[e.target.value]]}))
-    setSelectedPage(e.target.value)
-  }
+    dispatch(setReportPivotInfo({ kind: "pages", data: [[e.target.value]] }));
+    setSelectedPage(e.target.value);
+  };
 
   console.log(
     "rows, cols, pages, expandedRows, expandedCols, expandedPages, displayRows, displayCols, displayPages",
@@ -220,7 +231,7 @@ const Report = () => {
       >
         <Tab label="Report Generator" style={{ fontWeight: 700 }} />
       </Tabs>
-      <CommonTools />
+      <CommonTools page={selectedPage} />
       <Box sx={{ display: "flex" }}>
         <WorkTree />
         <Box component="main" sx={{ flexGrow: 1 }}>
@@ -369,16 +380,15 @@ const Report = () => {
                     // MenuProps={MenuProps}
                   >
                     {expandedPages.map((page) => (
-                      <MenuItem
-                        key={page.id}
-                        value={page}
-                      >
+                      <MenuItem key={page.id} value={page}>
                         {page.content}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
-              ) : <></>}
+              ) : (
+                <></>
+              )}
 
               {/* Grid with Drag and Drop function */}
               {displayRows.length && displayCols.length ? (
