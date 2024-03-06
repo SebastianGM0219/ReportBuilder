@@ -11,6 +11,10 @@ const initialState = {
   reportTableData: {},
   reportPivotInfo: {},
   reportResultOfPivot: {},
+  reportExpandedRows: [],
+  reportExpandedCols: [],
+  reportExpandedPages: [],
+
 };
 
 // export const connectDB = createAsyncThunk(
@@ -64,6 +68,18 @@ export const reportSlice = createSlice({
       state.reportPages = action.payload;
     },
 
+    setReportExpandedRows: (state, action) => {
+      state.reportExpandedRows = action.payload;
+    },
+
+    setReportExpandedCols: (state, action) => {
+      state.reportExpandedCols = action.payload;
+    },
+
+    setReportExpandedPages: (state, action) => {
+      state.reportExpandedPages = action.payload;
+    },
+
     setReportPivotInfo: (state, action) => {
       // console.log("setReportPivotInfo", action.payload);
       const { kind, data } = action.payload;
@@ -109,5 +125,8 @@ export const {
   setReportDimTable,
   setReportTables,
   setReportPivotInfo,
+  setReportExpandedRows,
+  setReportExpandedCols,
+  setReportExpandedPages,
 } = reportSlice.actions;
 export default reportSlice.reducer;

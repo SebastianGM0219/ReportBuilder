@@ -35,9 +35,9 @@ import {
   getTables,
   getTableData,
   setReportPivotInfo,
-  setReportRows,
-  setReportCols,
-  setReportPages,
+  setReportExpandedRows,
+  setReportExpandedCols,
+  setReportExpandedPages,
 } from "../../slices/report";
 import Checkbox from "@mui/material/Checkbox";
 
@@ -141,18 +141,21 @@ export default function SelectMembersDialog({
     //   } else {
     //     text = node.name
     //   }
-      tmpDim.push({ id: table, content: text });
+      if (node.member !== undefined)
+        tmpDim.push({ id: table, content: text, dimension: table, member: node.name, relation: node.member });
+
+      else tmpDim.push({ id: table, content: text, dimension: table, member: node.name });     
     });
 
     switch (kind) {
       case "rows":
-        dispatch(setReportRows(tmpDim));
+        dispatch(setReportExpandedRows(tmpDim));
         break;
       case "cols":
-        dispatch(setReportCols(tmpDim));
+        dispatch(setReportExpandedCols(tmpDim));
         break;
       default:
-        dispatch(setReportPages(tmpDim));
+        dispatch(setReportExpandedPages(tmpDim));
         break;
     }
     // console.log("###############pivotInfo", tmpPivotValue)

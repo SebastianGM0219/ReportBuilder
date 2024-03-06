@@ -31,6 +31,10 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  FormControl,
+  Select,
+  OutlinedInput,
+  InputLabel,
   Avatar,
   Divider,
 } from "@mui/material";
@@ -50,7 +54,7 @@ import { pivot } from "../../slices/query";
 import PersonAdd from "@mui/icons-material/PersonAdd";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
-import { getTableData } from "../../slices/report";
+import { getTableData, setReportPivotInfo } from "../../slices/report";
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -100,6 +104,7 @@ const Report = () => {
   const [selectMembersDialog, setSelectMembersDialog] = React.useState(false);
   const [selectedTable, setSelectedTable] = React.useState("");
   const [kind, setKind] = React.useState("pages");
+  const [selectedPage, setSelectedPage] = React.useState("")
   // const [rows, setRows] = React.useState(useSelector((state) => state.report.reportRows));
   // const [rows, setRows] = React.useState([]);
   // const reduxRows = useSelector((state) => state.report.reportRows);
@@ -107,6 +112,45 @@ const Report = () => {
   const rows = useSelector((state) => state.report.reportRows);
   const cols = useSelector((state) => state.report.reportCols);
   const pages = useSelector((state) => state.report.reportPages);
+
+  const expandedRows = useSelector((state) => state.report.reportExpandedRows);
+  const expandedCols = useSelector((state) => state.report.reportExpandedCols);
+  const expandedPages = useSelector(
+    (state) => state.report.reportExpandedPages
+  );
+
+  const displayRows = expandedRows.length ? expandedRows : rows;
+  const displayCols = expandedCols.length ? expandedCols : cols;
+  const displayPages = expandedPages.length ? expandedPages : pages;
+
+  React.useEffect(() => {
+    if(pages.length)
+      setSelectedPage(pages[0].id);
+  }, [pages])
+
+  React.useEffect(() => {
+    if(expandedPages.length)
+      setSelectedPage(pages[0].id);
+  }, [expandedPages])
+
+  const handleSelectedPageChanged = (e) => {
+    // console.log("handleSelectedPageChanged", e.target.value)
+    dispatch(setReportPivotInfo({kind:"pages", data:[[e.target.value]]}))
+    setSelectedPage(e.target.value)
+  }
+
+  console.log(
+    "rows, cols, pages, expandedRows, expandedCols, expandedPages, displayRows, displayCols, displayPages",
+    rows,
+    cols,
+    pages,
+    expandedRows,
+    expandedCols,
+    expandedPages,
+    displayRows,
+    displayCols,
+    displayPages
+  );
   // console.log("row is from Redux", rows);
   // console.log("col is from Redux", cols);
   // console.log("page is from Redux", pages);
@@ -296,12 +340,13 @@ const Report = () => {
                 <></>
               )}
               {pages.length ? (
-                <Box sx={{mt: 2}}>
+                <Box sx={{ mt: 2 }}>
                   <label>Pages: </label>
                   <Button
                     variant="contained"
                     value={pages[0].id}
                     onClick={(e) => {
+                      setKind("pages");
                       dispatch(getTableData(e.target.value));
                       setSelectMembersDialog(true);
                     }}
@@ -312,8 +357,31 @@ const Report = () => {
               ) : (
                 <></>
               )}
+              {expandedPages.length ? (
+                <FormControl sx={{ m: 1, width: 300 }}>
+                  {/* <InputLabel id="demo-multiple-name-label">Name</InputLabel> */}
+                  <Select
+                    labelId="demo-multiple-name-label"
+                    id="demo-multiple-name"
+                    value={selectedPage}
+                    onChange={handleSelectedPageChanged}
+                    input={<OutlinedInput label="" />}
+                    // MenuProps={MenuProps}
+                  >
+                    {expandedPages.map((page) => (
+                      <MenuItem
+                        key={page.id}
+                        value={page}
+                      >
+                        {page.content}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ) : <></>}
+
               {/* Grid with Drag and Drop function */}
-              {rows.length && cols.length ? (
+              {displayRows.length && displayCols.length ? (
                 <TableContainer>
                   <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
@@ -328,7 +396,7 @@ const Report = () => {
                             </TableCell>
                           );
                         })} */}
-                        {cols.map((col, index) => {
+                        {displayCols.map((col, index) => {
                           // console.log(row);
                           return (
                             <TableCell align="right">
@@ -360,7 +428,7 @@ const Report = () => {
                             </TableCell>
                           );
                         })} */}
-                        {cols.map((col) => {
+                        {displayCols.map((col) => {
                           return (
                             <TableCell align="right">
                               <Button
@@ -377,8 +445,8 @@ const Report = () => {
                         })}
                         <TableCell />
                       </TableRow>
-                      </TableHead>
-                      <TableBody>
+                    </TableHead>
+                    <TableBody>
                       {/* {cols.map((col, index) => {
                         return (
                           <TableRow>
@@ -402,7 +470,7 @@ const Report = () => {
                           </TableRow>
                         );
                       })} */}
-                      {rows.map((row, index) => {
+                      {displayRows.map((row, index) => {
                         return (
                           <TableRow>
                             <TableCell>{index + 1}</TableCell>
@@ -411,14 +479,14 @@ const Report = () => {
                                 value={row.id}
                                 onClick={(e) => {
                                   // console.log("cell button clicked", e.target.value)
-                                  setKind("rows")
+                                  setKind("rows");
                                   setSelectedTable(e.target.value);
                                 }}
                               >
                                 {row.content}
                               </Button>
                             </TableCell>
-                            {rows.map((row, index) => {
+                            {displayRows.map((row, index) => {
                               return <TableCell align="right">#</TableCell>;
                             })}
                             <TableCell />
@@ -428,13 +496,13 @@ const Report = () => {
                       <TableRow>
                         <TableCell align="right" width={1}>
                           <IconButton>
-                            <AddIcon/>
+                            <AddIcon />
                           </IconButton>
                         </TableCell>
                         <TableCell />
-                        <TableCell/>
-                        {rows.map(() => {
-                          return <TableCell />
+                        <TableCell />
+                        {displayRows.map(() => {
+                          return <TableCell />;
                         })}
                       </TableRow>
                     </TableBody>
