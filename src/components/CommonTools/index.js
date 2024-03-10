@@ -14,18 +14,18 @@ const CommonTools = () => {
         sx={{ display: "flex", flexDirection: "row", padding: 0 }}
       >
         {["Undo", "Redo"].map((text, index) => (
-          <CommonToolsItem text={text} />
+          <CommonToolsItem text={text} key={text}/>
         ))}
         <Divider orientation="vertical" variant="middle" flexItem />
         {["Properties"].map((text, index) => (
-          <CommonToolsItem text={text} />
+          <CommonToolsItem text={text} key={text}/>
         ))}
         <Divider orientation="vertical" variant="middle" flexItem />
         {["SaveAs"].map((text, index) => (
-          <CommonToolsItem text={text} />
+          <CommonToolsItem text={text} key={text}/>
         ))}
         {["Print"].map((text, index) => (
-          <CommonToolsItem text={text} />
+          <CommonToolsItem text={text} key={text}/>
         ))}
       </List>
     </Box>

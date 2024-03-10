@@ -111,7 +111,7 @@ export const reportSlice = createSlice({
       return state;
     },
     [pivot.fulfilled]: (state, action) => {
-      console.log("Hey, it's pivot action.payload", action.payload);
+      // console.log("Hey, it's pivot action.payload", action.payload);
       state.reportResultOfPivot = action.payload.Return
       console.log("This is result from backend!", state.reportResultOfPivot)
     },

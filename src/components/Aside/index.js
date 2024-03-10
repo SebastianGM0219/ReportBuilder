@@ -85,7 +85,7 @@ const Aside = () => {
 
       <List>
         {["Create"].map((text, index) => (
-          <AsideListItem text={text} />
+          <AsideListItem text={text} key={text}/>
         ))}
       </List>
       <Divider />
@@ -94,7 +94,7 @@ const Aside = () => {
           <AsideListItem text={text} />
         ))} */}
         {["Home", "Data", "Report", "Files"].map((text, index) => (
-          <AsideListItem text={text} />
+          <AsideListItem text={text} key={text}/>
         ))}
       </List>
     </Drawer>
