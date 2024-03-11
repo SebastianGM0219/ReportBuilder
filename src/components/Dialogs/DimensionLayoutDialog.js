@@ -11,6 +11,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 
 import {
@@ -18,7 +19,7 @@ import {
   setReportCols,
   setReportPages,
   setReportDimTable,
-  setReportPivotInfo
+  setReportPivotInfo,
 } from "../../slices/report";
 
 const CustomDialogTitle = styled(DialogTitle)(({ theme }) => ({
@@ -204,7 +205,7 @@ export default function DimensionLayoutDialog({
                   <Box
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    sx={{ minHeight: "60px" }}
+                    sx={{ minHeight:"60px", padding:"5px" }}
                   >
                     <Box>
                       {dimTable.map((item, index) => {
@@ -219,8 +220,9 @@ export default function DimensionLayoutDialog({
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
+                                
                               >
-                                <Box>{item.content}</Box>
+                                <Box style={{display:"flex"}}><ViewInArIcon /><Typography>{item.content}</Typography></Box>
                                 {provided.placeholder}
                               </Box>
                             )}
@@ -250,7 +252,7 @@ export default function DimensionLayoutDialog({
                   <Box
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    sx={{ minHeight: "60px" }}
+                    sx={{ minHeight:"60px", padding:"5px" }}
                   >
                     <Box sx={{ display: "flex", flexWrap: "wrap" }}>
                       {tables.map((item, index) => {
@@ -265,9 +267,10 @@ export default function DimensionLayoutDialog({
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                sx={{ width: "20%" }}
+                                sx={{ width: "20%", display: "flex" }}
                               >
-                                <Box>{item.content}</Box>
+                                <ViewInArIcon />
+                                <Typography>{item.content}</Typography>
                               </Box>
                             )}
                           </Draggable>
@@ -296,7 +299,7 @@ export default function DimensionLayoutDialog({
                   <Box
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    sx={{ minHeight: "60px" }}
+                    sx={{ minHeight:"60px", padding:"5px" }}
                   >
                     <Box>
                       {pages.map((item, index) => {
@@ -312,7 +315,7 @@ export default function DimensionLayoutDialog({
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                               >
-                                <Box>{item.content}</Box>
+                                <Box style={{display:"flex"}}><ViewInArIcon /><Typography>{item.content}</Typography></Box>
                                 {provided.placeholder}
                               </Box>
                             )}
@@ -345,7 +348,7 @@ export default function DimensionLayoutDialog({
                     <Box
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      sx={{ minHeight: "60px" }}
+                      sx={{ minHeight:"60px", padding:"5px" }}
                     >
                       {provided.placeholder}
                       <Box>
@@ -362,7 +365,7 @@ export default function DimensionLayoutDialog({
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                 >
-                                  <Box>{item.content}</Box>
+                                  <Box style={{display:"flex"}}><ViewInArIcon /><Typography>{item.content}</Typography></Box>
                                   {provided.placeholder}
                                 </Box>
                               )}
@@ -390,7 +393,7 @@ export default function DimensionLayoutDialog({
                     <Box
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      sx={{ minHeight: "60px" }}
+                      sx={{ minHeight:"60px", padding:"5px", padding:"5px" }}
                     >
                       {provided.placeholder}
                       <Box>
@@ -407,7 +410,7 @@ export default function DimensionLayoutDialog({
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                 >
-                                  <Box>{item.content}</Box>
+                                  <Box style={{display:"flex"}}><ViewInArIcon /><Typography>{item.content}</Typography></Box>
                                 </Box>
                               )}
                             </Draggable>

@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import DatabaseService from '../services/DatabaseService'
+import DatabaseService from "../services/DatabaseService";
 
 const initialState = {
   success: false,
   primaryKeyInfo: null,
   foreignKeyInfo: null,
   tableFieldInfo: null,
+  dbs: [],
   dbInfo: [],
 };
 
@@ -18,22 +19,25 @@ export const connectDB = createAsyncThunk(
 );
 
 const databaseSlice = createSlice({
-  name: 'database',
+  name: "database",
   initialState,
-  reducers:{
-      initAllDatabaseTable:(state, action) => {
-        return {
-          ...state,
-          ...initialState
-        }
-      },
-      saveDbInformation: (state, action) => {
-        state.dbInfo = action.payload;
-      }
+  reducers: {
+    initAllDatabaseTable: (state, action) => {
+      return {
+        ...state,
+        ...initialState,
+      };
     },
+    saveDbInformation: (state, action) => {
+      state.dbInfo = action.payload;
+    },
+  },
   extraReducers: {
     [connectDB.fulfilled]: (state, action) => {
-      state = action.payload
+      const { success, databases } = action.payload;
+      if(success) {
+        state.dbs = databases;
+      }
       // state.primaryKeyInfo = action.payload.primaryKeyInfo; // Assuming primary key information is included in the response
       // state.foreignKeyInfo = action.payload.foreignKeyInfo; // Assuming foreign key information is included in the response
       // state.tableFieldInfo = action.payload.tableFieldInfo; // Assuming table and field information is included in the response
@@ -42,10 +46,11 @@ const databaseSlice = createSlice({
       // state.foreignKeyInfo = action.payload.foreignKeyInfo; // Assuming foreign key information is included in the response
       // state.tableFieldInfo = action.payload.tableFieldInfo; // Assuming table and field information is included in the response
       return state;
-    }
-  }
-})  
+    },
+  },
+});
 
-const {reducer} = databaseSlice;
-export const {initAllDatabaseTable, saveDbInformation} = databaseSlice.actions;
+const { reducer } = databaseSlice;
+export const { initAllDatabaseTable, saveDbInformation } =
+  databaseSlice.actions;
 export default reducer;

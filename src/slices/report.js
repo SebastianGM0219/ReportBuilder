@@ -90,16 +90,22 @@ export const reportSlice = createSlice({
   },
   extraReducers: {
     [getTables.fulfilled]: (state, action) => {
-      const { data } = action.payload;
-      let formattedData = [];
-      data.forEach((item) => {
-        formattedData.push({ id: item, content: item });
-      });
-      state.reportTables = formattedData;
-      state.reportCols = [];
-      state.reportRows = [];
-      state.reportDimTable = [];
-      state.reportPages = [];
+      const { databases, success } = action.payload;
+      console.log("In report slice getTable ", action.payload)
+      if(success) {
+        let formattedData = [];
+        databases.forEach((item) => {
+          formattedData.push({ id: item, content: item });
+        });
+        console.log("In report slice tables", formattedData)
+        state.reportTables = formattedData;
+        state.reportCols = [];
+        state.reportRows = [];
+        state.reportDimTable = [];
+        state.reportPages = [];
+      } else {
+        console.log("getTables failed")
+      }
       return state;
     },
     [getTableData.fulfilled]: (state, action) => {

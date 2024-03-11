@@ -65,9 +65,11 @@ import "jspdf-autotable";
 const useStyles = makeStyles()((theme) => {
   return {
     grid: {
-      border: "3px solid #6F6B68",
-      margin: "10px",
-      height: "73vh",
+      border: "3px solid #908C91",
+      height: "100%",
+    },
+    main: {
+      minHeight: "75vh"
     },
   };
 });
@@ -252,10 +254,20 @@ const Report = () => {
       <CommonTools />
       <Box sx={{ display: "flex" }}>
         <WorkTree />
-        <Box component="main" sx={{ flexGrow: 1 }}>
+        <Box component="main" sx={{ flexGrow: 1 }} className={classes.main}>
+          <Box
+            style={{
+              width: "100%",
+              backgroundColor: "#C5C1C5",
+              paddingLeft: "10px",
+              fontWeight: "900",
+            }}
+          >
+            Report Builder
+          </Box>
           <Grid container>
             <Grid item xs={2} sx={{}}>
-              <Box className={classes.grid}>
+              <Box className={classes.grid} style={{ marginRight: "7px" }}>
                 <List sx={{}}>
                   <ListItem
                     sx={{ borderBottom: "1px solid grey" }}
@@ -293,6 +305,8 @@ const Report = () => {
                           overflow: "visible",
                           filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
                           mt: 1.5,
+                          minWidth: "170px",
+                          width:"11%",
                           "& .MuiAvatar-root": {
                             width: 32,
                             height: 32,
@@ -317,7 +331,7 @@ const Report = () => {
                       anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
                     >
                       <MenuItem onClick={() => setDatabaseConnectDialog(true)}>
-                        <GridOnIcon /> Grid
+                        <GridOnIcon /> <Typography sx={{marginLeft: "10px", fontWeight:"600", fontSize:"18px"}}> Grid </Typography>
                       </MenuItem>
                     </Menu>
                     <ListItemText>Body</ListItemText>
@@ -354,7 +368,7 @@ const Report = () => {
               </Box>
             </Grid>
             <Grid item xs={7}>
-              <Box className={classes.grid}>
+              <Box className={classes.grid} style={{padding:"10px"}}>
                 {pages.length ? (
                   <Box>
                     <Button
@@ -545,7 +559,7 @@ const Report = () => {
               </Box>
             </Grid>
             <Grid item xs={3}>
-              <Box className={classes.grid}>
+              <Box className={classes.grid} style={{ marginLeft: "7px" }}>
                 <Accordion
                   expanded={expanded === "panel1"}
                   onChange={handleChange("panel1")}

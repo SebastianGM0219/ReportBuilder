@@ -169,6 +169,16 @@ const WorkTree = () => {
       open={open}
       PaperProps={{ style: { position: "relative" } }}
     >
+      <Box
+        style={{
+          width: "100%",
+          backgroundColor: "#C5C1C5",
+          paddingLeft: "10px",
+          fontWeight: "900",
+        }}
+      >
+        {open?"Repository":"Repo..."}
+      </Box>
       <DrawerHeader>
         <IconButton onClick={handleDrawerOpen}>
           {!open ? (
