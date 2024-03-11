@@ -46,7 +46,6 @@ export default function DatabaseConnectDialog({
   const { enqueueSnackbar } = useSnackbar();
 
   const handleChange = (event) => {
-    console.log("selected Database", event.target.value)
     setDatabase(event.target.value);
   };
 
@@ -108,14 +107,14 @@ export default function DatabaseConnectDialog({
           variant="contained"
           sx={{ float: "right" }}
           onClick={() => {
-            dispatch(getTables(database))
+            dispatch(getTables({database: database}))
              .then(res => {
               const {success} = res.payload;
-              console.log("$$$$$$$$$getTables Response", success)
+              // console.log("$$$$$$$$$getTables Response", success)
               if(success) {
                 snackbarWithStyle(notifyContents.databaseSelectSuccess, "success");
               } else {
-                snackbarWithStyle(notifyContents.databaseSelectFail, "fail");
+                snackbarWithStyle(notifyContents.databaseSelectFail, "error");
               }
              });
             handleDatabaseConnectDialogOK();

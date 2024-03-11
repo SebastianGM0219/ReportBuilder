@@ -205,7 +205,7 @@ export default function DimensionLayoutDialog({
                   <Box
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    sx={{ minHeight:"60px", padding:"5px" }}
+                    sx={{ minHeight: "60px", padding: "5px" }}
                   >
                     <Box>
                       {dimTable.map((item, index) => {
@@ -220,9 +220,25 @@ export default function DimensionLayoutDialog({
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                
                               >
-                                <Box style={{display:"flex"}}><ViewInArIcon /><Typography>{item.content}</Typography></Box>
+                                <Box
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <ViewInArIcon
+                                    style={{ fontSize: "medium" }}
+                                  />
+                                  <Typography
+                                    style={{
+                                      fontWeight: "bold",
+                                      paddingLeft: "3px",
+                                    }}
+                                  >
+                                    {item.content}
+                                  </Typography>
+                                </Box>
                                 {provided.placeholder}
                               </Box>
                             )}
@@ -252,7 +268,7 @@ export default function DimensionLayoutDialog({
                   <Box
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    sx={{ minHeight:"60px", padding:"5px" }}
+                    sx={{ minHeight: "60px", padding: "5px" }}
                   >
                     <Box sx={{ display: "flex", flexWrap: "wrap" }}>
                       {tables.map((item, index) => {
@@ -267,10 +283,21 @@ export default function DimensionLayoutDialog({
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                sx={{ width: "20%", display: "flex" }}
+                                sx={{
+                                  width: "20%",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
                               >
-                                <ViewInArIcon />
-                                <Typography>{item.content}</Typography>
+                                <ViewInArIcon style={{ fontSize: "medium" }} />
+                                <Typography
+                                  style={{
+                                    fontWeight: "bold",
+                                    paddingLeft: "3px",
+                                  }}
+                                >
+                                  {item.content}
+                                </Typography>
                               </Box>
                             )}
                           </Draggable>
@@ -299,7 +326,7 @@ export default function DimensionLayoutDialog({
                   <Box
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    sx={{ minHeight:"60px", padding:"5px" }}
+                    sx={{ minHeight: "60px", padding: "5px" }}
                   >
                     <Box>
                       {pages.map((item, index) => {
@@ -315,7 +342,24 @@ export default function DimensionLayoutDialog({
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                               >
-                                <Box style={{display:"flex"}}><ViewInArIcon /><Typography>{item.content}</Typography></Box>
+                                <Box
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <ViewInArIcon
+                                    style={{ fontSize: "medium" }}
+                                  />
+                                  <Typography
+                                    style={{
+                                      fontWeight: "bold",
+                                      paddingLeft: "3px",
+                                    }}
+                                  >
+                                    {item.content}
+                                  </Typography>
+                                </Box>
                                 {provided.placeholder}
                               </Box>
                             )}
@@ -348,7 +392,7 @@ export default function DimensionLayoutDialog({
                     <Box
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      sx={{ minHeight:"60px", padding:"5px" }}
+                      sx={{ minHeight: "60px", padding: "5px" }}
                     >
                       {provided.placeholder}
                       <Box>
@@ -365,7 +409,24 @@ export default function DimensionLayoutDialog({
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                 >
-                                  <Box style={{display:"flex"}}><ViewInArIcon /><Typography>{item.content}</Typography></Box>
+                                  <Box
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <ViewInArIcon
+                                      style={{ fontSize: "medium" }}
+                                    />
+                                    <Typography
+                                      style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "3px",
+                                      }}
+                                    >
+                                      {item.content}
+                                    </Typography>
+                                  </Box>
                                   {provided.placeholder}
                                 </Box>
                               )}
@@ -393,7 +454,7 @@ export default function DimensionLayoutDialog({
                     <Box
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      sx={{ minHeight:"60px", padding:"5px", padding:"5px" }}
+                      sx={{ minHeight: "60px", padding: "5px", padding: "5px" }}
                     >
                       {provided.placeholder}
                       <Box>
@@ -410,7 +471,24 @@ export default function DimensionLayoutDialog({
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                 >
-                                  <Box style={{display:"flex"}}><ViewInArIcon /><Typography>{item.content}</Typography></Box>
+                                  <Box
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <ViewInArIcon
+                                      style={{ fontSize: "medium" }}
+                                    />
+                                    <Typography
+                                      style={{
+                                        fontWeight: "bold",
+                                        paddingLeft: "3px",
+                                      }}
+                                    >
+                                      {item.content}
+                                    </Typography>
+                                  </Box>
                                 </Box>
                               )}
                             </Draggable>

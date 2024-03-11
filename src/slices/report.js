@@ -90,11 +90,11 @@ export const reportSlice = createSlice({
   },
   extraReducers: {
     [getTables.fulfilled]: (state, action) => {
-      const { databases, success } = action.payload;
+      const { data, success } = action.payload;
       console.log("In report slice getTable ", action.payload)
       if(success) {
         let formattedData = [];
-        databases.forEach((item) => {
+        data.forEach((item) => {
           formattedData.push({ id: item, content: item });
         });
         console.log("In report slice tables", formattedData)
