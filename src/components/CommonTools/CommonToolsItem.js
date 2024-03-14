@@ -23,6 +23,8 @@ import "jspdf-autotable";
 import { saveAs } from "file-saver";
 import XLSX from "xlsx";
 import { colors } from "@mui/material";
+import { renderToString } from "react-dom/server";
+import { render } from "@testing-library/react";
 
 const CommonToolsItem = (props) => {
   const dispatch = useDispatch();
@@ -30,80 +32,81 @@ const CommonToolsItem = (props) => {
   const exportHTMLRef = useRef(null);
 
   const pivotInfo = useSelector((state) => state.report.reportPivotInfo);
-  const pivotResult = useSelector((state) => state.report.reportResultOfPivot);
+  // const pivotResult = useSelector((state) => state.report.reportResultOfPivot);
 
   const { rows, cols } = pivotInfo;
   const filters = pivotInfo.pages;
 
   const [displayData, setDisplayData] = React.useState([]);
-  // React.useEffect(() => {
 
   let rowParentsCount = {};
-  let colParentsCount = {};
-  let rowHeaderIndex = [];
+  // let colParentsCount = {};
+  // let rowHeaderIndex = [];
 
-  let modifiedData = [];
-  if (rows !== undefined && cols !== undefined && filters !== undefined) {
-    //Formatting data for display
-    console.log("rows, cols, filters", rows, cols, filters);
-    console.log("pivotResults", pivotResult);
+  // let modifiedData = [];
+  // // React.useEffect(() => {
 
-    if (pivotResult.rows !== undefined && pivotResult.columns !== undefined) {
-      let resultRows = pivotResult.rows;
-      let resultCols = pivotResult.columns;
-      let resultData = pivotResult.data;
+  // if (rows !== undefined && cols !== undefined && filters !== undefined) {
+  //   //Formatting data for display
+  //   console.log("rows, cols, filters", rows, cols, filters);
+  //   console.log("pivotResults", pivotResult);
 
-      console.log("resultrows,......!!!!!!!!", pivotResult.rows);
+  //   if (pivotResult.rows !== undefined && pivotResult.columns !== undefined) {
+  //     let resultRows = pivotResult.rows;
+  //     let resultCols = pivotResult.columns;
+  //     let resultData = pivotResult.data;
 
-      //For RowHeader
+  //     console.log("resultrows,......!!!!!!!!", pivotResult.rows);
 
-      resultRows.map((row, index) => {
-        const key = Object.keys(row)[1];
-        if (row.parent.member === row[key]) rowHeaderIndex.push(index + 2);
-      });
+  //     //For RowHeader
 
-      //Maintain orders of columns
-      //For ColumnHeader
-      let colOrder = [];
+  //     resultRows.map((row, index) => {
+  //       const key = Object.keys(row)[1];
+  //       if (row.parent.member === row[key]) rowHeaderIndex.push(index + 2);
+  //     });
 
-      colParentsCount = resultCols.reduce((acc, curr) => {
-        const { dimension, member, relation } = curr.parent;
-        const key = `${dimension}-${member}-${relation}`;
-        if (colOrder.indexOf(key) < 0) colOrder.push(key);
+  //     //Maintain orders of columns
+  //     //For ColumnHeader
+  //     let colOrder = [];
 
-        acc[key] = acc[key] || { count: 0, member: "" };
-        acc[key].count++;
-        acc[key].member = member;
+  //     colParentsCount = resultCols.reduce((acc, curr) => {
+  //       const { dimension, member, relation } = curr.parent;
+  //       const key = `${dimension}-${member}-${relation}`;
+  //       if (colOrder.indexOf(key) < 0) colOrder.push(key);
 
-        return acc;
-      }, {});
+  //       acc[key] = acc[key] || { count: 0, member: "" };
+  //       acc[key].count++;
+  //       acc[key].member = member;
 
-      colParentsCount = colOrder.map((combination) => ({
-        key: combination,
-        value: colParentsCount[combination] || { count: 0, member: new Set() },
-      }));
+  //       return acc;
+  //     }, {});
 
-      resultRows = resultRows.map((row) => {
-        const key = Object.keys(row)[1];
-        // console.log("sfsdfsdf",row)
-        return row[key];
-      });
-      resultCols = resultCols.map((col) => {
-        const key = Object.keys(col)[1];
-        // console.log("sfsdfsdf",col)
-        return col[key];
-      });
-      resultCols.unshift("");
+  //     colParentsCount = colOrder.map((combination) => ({
+  //       key: combination,
+  //       value: colParentsCount[combination] || { count: 0, member: new Set() },
+  //     }));
 
-      resultRows.map((row, rowIndex) => {
-        console.log("resultData[rowIndex]", resultData[rowIndex]);
-        // resultData[rowIndex].unshift(1);
-        modifiedData.push([row, ...resultData[rowIndex]]);
-      });
-      // resultCols.push(["", "Total", "2016-2020"])
-      modifiedData.unshift(resultCols);
-    }
-  }
+  //     resultRows = resultRows.map((row) => {
+  //       const key = Object.keys(row)[1];
+  //       // console.log("sfsdfsdf",row)
+  //       return row[key];
+  //     });
+  //     resultCols = resultCols.map((col) => {
+  //       const key = Object.keys(col)[1];
+  //       // console.log("sfsdfsdf",col)
+  //       return col[key];
+  //     });
+  //     resultCols.unshift("");
+
+  //     resultRows.map((row, rowIndex) => {
+  //       console.log("resultData[rowIndex]", resultData[rowIndex]);
+  //       // resultData[rowIndex].unshift(1);
+  //       modifiedData.push([row, ...resultData[rowIndex]]);
+  //     });
+  //     // resultCols.push(["", "Total", "2016-2020"])
+  //     modifiedData.unshift(resultCols);
+  //   }
+  // }
   // setDisplayData(modifiedData);
   // console.log("CommonToolsItem pivotInfo input test", filters[0])
   // }, [pivotInfo]);
@@ -198,73 +201,192 @@ const CommonToolsItem = (props) => {
               <Menu {...bindMenu(popupState)}>
                 <MenuItem
                   onClick={() => {
-                    dispatch(pivot({ rows, cols, filters: filters }));
                     popupState.close();
                   }}
                 >
                   <Button
                     onClick={() => {
-                      const doc = new jsPDF();
-                      let header = [""];
-                      if (
-                        colParentsCount !== undefined &&
-                        colParentsCount.length > 0
-                      )
-                        colParentsCount.map((item) => {
-                          const { count, member } = item.value;
-                          header.push({
-                            content: member,
-                            styles: { halign: "center" },
-                            colSpan: count,
-                          });
-                        });
-                      modifiedData.unshift(header);
+                      dispatch(pivot({ rows, cols, filters: filters })).then(
+                        (result) => {
+                          let pivotResult = result.payload.Return;
+                          let colParentsCount = {};
+                          let rowHeaderIndex = [];
 
-                      if (filters !== undefined && filters.length > 0 && filters[0][0].id !== undefined)
-                        doc.text(
-                          `${filters[0][0].id.toUpperCase()}: ${text}`,
-                          15,
-                          10
-                        );
-                      doc.autoTable({
-                        body: modifiedData,
-                        didParseCell: function (modifiedData) {
+                          let modifiedData = [];
+                          // React.useEffect(() => {
+
                           if (
-                            rowHeaderIndex.indexOf(modifiedData.row.index) !==
-                            -1
+                            rows !== undefined &&
+                            cols !== undefined &&
+                            filters !== undefined
                           ) {
-                            modifiedData.cell.styles.fillColor = [
-                              222, 218, 223,
-                            ];
-                            modifiedData.cell.styles.lineWidth = {
-                              left: 0.5,
-                              right: 0.5,
-                              top: 0.5,
-                              bottom: 0.5,
-                            };
-                          } else {
-                            modifiedData.cell.styles.lineWidth = {
-                              left: 0.5,
-                              right: 0.5,
-                              top: 0,
-                              bottom: 0,
-                            };
+                            //Formatting data for display
+                            console.log(
+                              "rows, cols, filters",
+                              rows,
+                              cols,
+                              filters
+                            );
+                            console.log("pivotResults", pivotResult);
+
+                            if (
+                              pivotResult.rows !== undefined &&
+                              pivotResult.columns !== undefined
+                            ) {
+                              let resultRows = pivotResult.rows;
+                              let resultCols = pivotResult.columns;
+                              let resultData = pivotResult.data;
+
+                              console.log(
+                                "resultrows,......!!!!!!!!",
+                                pivotResult.rows
+                              );
+
+                              //For RowHeader
+
+                              resultRows.map((row, index) => {
+                                const key = Object.keys(row)[1];
+                                if (row.parent.member === row[key])
+                                  rowHeaderIndex.push(index + 2);
+                              });
+
+                              //Maintain orders of columns
+                              //For ColumnHeader
+                              let colOrder = [];
+
+                              colParentsCount = resultCols.reduce(
+                                (acc, curr) => {
+                                  const { dimension, member, relation } =
+                                    curr.parent;
+                                  const key = `${dimension}-${member}-${relation}`;
+                                  if (colOrder.indexOf(key) < 0)
+                                    colOrder.push(key);
+
+                                  acc[key] = acc[key] || {
+                                    count: 0,
+                                    member: "",
+                                  };
+                                  acc[key].count++;
+                                  acc[key].member = member;
+
+                                  return acc;
+                                },
+                                {}
+                              );
+
+                              colParentsCount = colOrder.map((combination) => ({
+                                key: combination,
+                                value: colParentsCount[combination] || {
+                                  count: 0,
+                                  member: new Set(),
+                                },
+                              }));
+
+                              resultRows = resultRows.map((row) => {
+                                const key = Object.keys(row)[1];
+                                // console.log("sfsdfsdf",row)
+                                return row[key];
+                              });
+                              resultCols = resultCols.map((col) => {
+                                const key = Object.keys(col)[1];
+                                // console.log("sfsdfsdf",col)
+                                return col[key];
+                              });
+                              resultCols.unshift("");
+
+                              resultRows.map((row, rowIndex) => {
+                                console.log(
+                                  "resultData[rowIndex]",
+                                  resultData[rowIndex]
+                                );
+                                // resultData[rowIndex].unshift(1);
+                                modifiedData.push([
+                                  row,
+                                  ...resultData[rowIndex],
+                                ]);
+                              });
+                              // resultCols.push(["", "Total", "2016-2020"])
+                              modifiedData.unshift(resultCols);
+                            }
                           }
+                          const doc = new jsPDF();
+                          let header = [""];
                           if (
-                            modifiedData.row.index === 0 ||
-                            modifiedData.row.index === 1
-                          ) {
-                            modifiedData.cell.styles.lineWidth = {
-                              left: 0.5,
-                              right: 0.5,
-                              top: 0.5,
-                              bottom: 0.5,
-                            };
-                          }
-                        },
-                      });
-                      doc.save("data.pdf");
-                      modifiedData.shift();
+                            colParentsCount !== undefined &&
+                            colParentsCount.length > 0
+                          )
+                            colParentsCount.map((item) => {
+                              const { count, member } = item.value;
+                              header.push({
+                                content: member,
+                                styles: { halign: "center" },
+                                colSpan: count,
+                              });
+                            });
+                          modifiedData.unshift(header);
+
+                          if (
+                            filters !== undefined &&
+                            filters.length > 0 &&
+                            filters[0][0].id !== undefined
+                          )
+                            doc.text(
+                              `${filters[0][0].id.toUpperCase()}: ${text}`,
+                              15,
+                              10
+                            );
+                          console.log("modified Length", modifiedData.length);
+                          let lastRow = modifiedData.length - 1;
+                          doc.autoTable({
+                            body: modifiedData,
+                            theme: "plain",
+                            didParseCell: function (modifiedData) {
+                              if (
+                                rowHeaderIndex.indexOf(
+                                  modifiedData.row.index
+                                ) !== -1
+                              ) {
+                                modifiedData.cell.styles.fillColor = [
+                                  222, 218, 223,
+                                ];
+                                modifiedData.cell.styles.lineWidth = {
+                                  left: 0.5,
+                                  right: 0.5,
+                                  top: 0.5,
+                                  bottom: 0.5,
+                                };
+                              } else {
+                                modifiedData.cell.styles.lineWidth = {
+                                  left: 0.5,
+                                  right: 0.5,
+                                  top: 0,
+                                  bottom: 0,
+                                };
+                              }
+                              if (
+                                modifiedData.row.index === 0 ||
+                                modifiedData.row.index === 1
+                              ) {
+                                modifiedData.cell.styles.lineWidth = {
+                                  left: 0.5,
+                                  right: 0.5,
+                                  top: 0.5,
+                                  bottom: 0.5,
+                                };
+                              }
+                              if (modifiedData.row.index === lastRow) {
+                                modifiedData.cell.styles.lineWidth = {
+                                  left: 0.5,
+                                  right: 0.5,
+                                  bottom: 0.5,
+                                };
+                              }
+                            },
+                          });
+                          doc.save("data.pdf");
+                          modifiedData.shift();
+                        }
+                      );
                     }}
                   >
                     PDF
@@ -273,34 +395,267 @@ const CommonToolsItem = (props) => {
                 <MenuItem onClick={popupState.close}>
                   <Button
                     onClick={() => {
-                      dispatch(pivot({ rows, cols, filters: filters }));
-                      // modifiedData.shift("", "Total", "2016-2020");
-                      console.log(
-                        "exportHTMLRef",
-                        exportHTMLRef.current.outerHTML
+                      dispatch(pivot({ rows, cols, filters: filters })).then(
+                        (result) => {
+                          let pivotResult = result.payload.Return;
+                          let colParentsCount = {};
+                          let rowHeaderIndex = [];
+
+                          let modifiedData = [];
+                          // React.useEffect(() => {
+
+                          if (
+                            rows !== undefined &&
+                            cols !== undefined &&
+                            filters !== undefined
+                          ) {
+                            //Formatting data for display
+                            console.log(
+                              "rows, cols, filters",
+                              rows,
+                              cols,
+                              filters
+                            );
+                            console.log("pivotResults", pivotResult);
+
+                            if (
+                              pivotResult.rows !== undefined &&
+                              pivotResult.columns !== undefined
+                            ) {
+                              let resultRows = pivotResult.rows;
+                              let resultCols = pivotResult.columns;
+                              let resultData = pivotResult.data;
+
+                              console.log(
+                                "resultrows,......!!!!!!!!",
+                                pivotResult.rows
+                              );
+
+                              //For RowHeader
+
+                              resultRows.map((row, index) => {
+                                const key = Object.keys(row)[1];
+                                if (row.parent.member === row[key])
+                                  rowHeaderIndex.push(index + 2);
+                              });
+
+                              //Maintain orders of columns
+                              //For ColumnHeader
+                              let colOrder = [];
+
+                              colParentsCount = resultCols.reduce(
+                                (acc, curr) => {
+                                  const { dimension, member, relation } =
+                                    curr.parent;
+                                  const key = `${dimension}-${member}-${relation}`;
+                                  if (colOrder.indexOf(key) < 0)
+                                    colOrder.push(key);
+
+                                  acc[key] = acc[key] || {
+                                    count: 0,
+                                    member: "",
+                                  };
+                                  acc[key].count++;
+                                  acc[key].member = member;
+
+                                  return acc;
+                                },
+                                {}
+                              );
+
+                              colParentsCount = colOrder.map((combination) => ({
+                                key: combination,
+                                value: colParentsCount[combination] || {
+                                  count: 0,
+                                  member: new Set(),
+                                },
+                              }));
+
+                              resultRows = resultRows.map((row) => {
+                                const key = Object.keys(row)[1];
+                                // console.log("sfsdfsdf",row)
+                                return row[key];
+                              });
+                              resultCols = resultCols.map((col) => {
+                                const key = Object.keys(col)[1];
+                                // console.log("sfsdfsdf",col)
+                                return col[key];
+                              });
+                              resultCols.unshift("");
+
+                              resultRows.map((row, rowIndex) => {
+                                console.log(
+                                  "resultData[rowIndex]",
+                                  resultData[rowIndex]
+                                );
+                                // resultData[rowIndex].unshift(1);
+                                modifiedData.push([
+                                  row,
+                                  ...resultData[rowIndex],
+                                ]);
+                              });
+                              // resultCols.push(["", "Total", "2016-2020"])
+                              modifiedData.unshift(resultCols);
+                            }
+                          }
+                          let htmlFile = (
+                            <html>
+                              <body style={{ padding: "20px" }}>
+                                {filters !== undefined &&
+                                filters.length > 0 &&
+                                filters[0][0].id !== undefined ? (
+                                  <h3>{`${filters[0][0].id.toUpperCase()}: ${text}`}</h3>
+                                ) : (
+                                  <></>
+                                )}
+                                <br />
+                                <table style={{ borderCollapse: "collapse" }}>
+                                  <thead>
+                                    <tr>
+                                      <th
+                                        style={{
+                                          backgroundColor: "rgb(245, 245, 245)",
+                                          borderTop:
+                                            "1px solid rgb(199, 199, 199)",
+                                          borderBottom:
+                                            "1px solid rgb(199, 199, 199)",
+                                          borderLeft:
+                                            "1px solid rgb(199, 199, 199)",
+                                          borderRight:
+                                            "1px solid rgb(199, 199, 199)",
+                                        }}
+                                      ></th>
+                                      {colParentsCount !== undefined &&
+                                      colParentsCount.length > 0 ? (
+                                        colParentsCount.map((item) => {
+                                          return (
+                                            <th
+                                              style={{
+                                                backgroundColor:
+                                                  "rgb(245, 245, 245)",
+                                                borderTop:
+                                                  "1px solid rgb(199, 199, 199)",
+                                                borderBottom:
+                                                  "1px solid rgb(199, 199, 199)",
+                                                borderLeft:
+                                                  "1px solid rgb(199, 199, 199)",
+                                                borderRight:
+                                                  "1px solid rgb(199, 199, 199)",
+                                              }}
+                                              colSpan={item.value.count}
+                                            >
+                                              {item.value.member}
+                                            </th>
+                                          );
+                                        })
+                                      ) : (
+                                        <></>
+                                      )}
+                                    </tr>
+                                  </thead>
+                                  <tbody style={{borderBottom: "1px solid rgb(199, 199, 199)"}}>
+                                    {modifiedData.map((data, index) => {
+                                      return (
+                                        <tr style={{ textAlign: "center" }}>
+                                          {data.map((dataItem) => {
+                                            console.log(
+                                              "modifiedData dataItem-------",
+                                              dataItem
+                                            );
+                                            if (
+                                              rowHeaderIndex.indexOf(
+                                                index + 1
+                                              ) !== -1
+                                            )
+                                              return (
+                                                <td
+                                                  style={{
+                                                    backgroundColor:
+                                                      "rgb(222, 217, 222)",
+                                                    borderTop:
+                                                      "1px solid rgb(199, 199, 199)",
+                                                    borderBottom:
+                                                      "1px solid rgb(199, 199, 199)",
+                                                    borderLeft:
+                                                      "1px solid rgb(199, 199, 199)",
+                                                    borderRight:
+                                                      "1px solid rgb(199, 199, 199)",
+                                                  }}
+                                                >
+                                                  {dataItem}
+                                                </td>
+                                              );
+                                            else
+                                              return (
+                                                <td
+                                                  style={{
+                                                    borderLeft:
+                                                      "1px solid rgb(199, 199, 199)",
+                                                    borderRight:
+                                                      "1px solid rgb(199, 199, 199)",
+                                                  }}
+                                                >
+                                                  {dataItem}
+                                                </td>
+                                              );
+                                          })}
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </body>
+                            </html>
+                          );
+                          htmlFile = renderToString(htmlFile);
+
+                          const blob = new Blob([htmlFile], {
+                            type: "text/html",
+                          });
+
+                          // Create a URL for the blob
+                          const url = URL.createObjectURL(blob);
+
+                          // Create a link and trigger the download
+                          const link = document.createElement("a");
+                          link.href = url;
+                          link.download = "generated_file.html";
+                          document.body.appendChild(link);
+                          link.click();
+
+                          // Clean up
+                          document.body.removeChild(link);
+                          URL.revokeObjectURL(url);
+                        }
                       );
-
-                      let htmlFile = exportHTMLRef.current.outerHTML;
-                      htmlFile = htmlFile.replace("display: none;", "");
-
-                      const blob = new Blob([htmlFile], {
-                        type: "text/html",
-                      });
-
-                      // Create a URL for the blob
-                      const url = URL.createObjectURL(blob);
-
-                      // Create a link and trigger the download
-                      const link = document.createElement("a");
-                      link.href = url;
-                      link.download = "generated_file.html";
-                      document.body.appendChild(link);
-                      link.click();
-
-                      // Clean up
-                      document.body.removeChild(link);
-                      URL.revokeObjectURL(url);
                     }}
+
+                    // // modifiedData.shift("", "Total", "2016-2020");
+                    // console.log(
+                    //   "exportHTMLRef",
+                    //   exportHTMLRef.current.outerHTML
+                    // );
+
+                    // let htmlFile = exportHTMLRef.current.outerHTML;
+                    // htmlFile = htmlFile.replace("display: none;", "");
+
+                    // const blob = new Blob([htmlFile], {
+                    //   type: "text/html",
+                    // });
+
+                    // // Create a URL for the blob
+                    // const url = URL.createObjectURL(blob);
+
+                    // // Create a link and trigger the download
+                    // const link = document.createElement("a");
+                    // link.href = url;
+                    // link.download = "generated_file.html";
+                    // document.body.appendChild(link);
+                    // link.click();
+
+                    // // Clean up
+                    // document.body.removeChild(link);
+                    // URL.revokeObjectURL(url);
                   >
                     HTML
                   </Button>
@@ -344,9 +699,11 @@ const CommonToolsItem = (props) => {
         /> */}
       </ListItemButton>
 
-      <html style={{ display: "none" }} ref={exportHTMLRef}>
+      {/* <html style={{ display: "none" }} ref={exportHTMLRef}>
         <body style={{ padding: "20px" }}>
-          {(filters !== undefined && filters.length > 0 && filters[0][0].id !== undefined) ? (
+          {filters !== undefined &&
+          filters.length > 0 &&
+          filters[0][0].id !== undefined ? (
             <h3>{`${filters[0][0].id.toUpperCase()}: ${text}`}</h3>
           ) : (
             <></>
@@ -424,58 +781,7 @@ const CommonToolsItem = (props) => {
             </tbody>
           </table>
         </body>
-      </html>
-
-      {Object.keys(pivotResult).length !== 0 ? (
-        <table id="export-data" style={{ display: "none" }}>
-          <thead>
-            <tr style={{ backgroundColor: "red" }}>
-              <th></th>
-              <th colSpan={2}>Children of Total</th>
-              <th colSpan={5}>Children of 2016-2020</th>
-            </tr>
-            <tr>
-              <th></th>
-              {pivotResult.columns.map((col) => {
-                const key = Object.keys(col)[1];
-                console.log("col's key###########", key);
-                return <th>{col[key]}</th>;
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {pivotResult.rows.map((row, rowIndex) => {
-              console.log("pivotResultRows's keys", Object.keys(row)[1]);
-              // const key = Object.keys(row)[0];
-              // return (
-              //   <tr>
-              //     {/* <th>{row[key]}</th> */}
-              //     <th><p>{row[key]}</p> <br/><p>{row[key]}</p> <br/><p>{row[key]}</p> <br/></th>
-              //     {pivotResult.columns.map((col, colIndex) => {
-              //       return <th>{pivotResult.data[rowIndex][colIndex]}</th>;
-              //     })}
-              //   </tr>
-              // );
-            })}
-            {pivotResult.rows.map((row, rowIndex) => {
-              const key = Object.keys(row)[1];
-              return (
-                <tr>
-                  {/* <th>{row[key]}</th> */}
-                  <th>
-                    {<p style={{ color: "blue" }}>{row[key]}</p>} <br />
-                  </th>
-                  {pivotResult.columns.map((col, colIndex) => {
-                    return <th>{pivotResult.data[rowIndex][colIndex]}</th>;
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      ) : (
-        <></>
-      )}
+      </html> */}
     </ListItem>
   );
 };
