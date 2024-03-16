@@ -17,7 +17,7 @@ import SaveAsIcon from "@mui/icons-material/SaveAs";
 import PrintIcon from "@mui/icons-material/Print";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useSelector, useDispatch } from "react-redux";
-import { pivot } from "../../slices/report";
+import { pivot, saveLog } from "../../slices/report";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { saveAs } from "file-saver";
@@ -25,6 +25,7 @@ import XLSX from "xlsx";
 import { colors } from "@mui/material";
 import { renderToString } from "react-dom/server";
 import { render } from "@testing-library/react";
+import { ReportProblemSharp } from "@mui/icons-material";
 
 const CommonToolsItem = (props) => {
   const dispatch = useDispatch();
@@ -40,6 +41,40 @@ const CommonToolsItem = (props) => {
   const [displayData, setDisplayData] = React.useState([]);
 
   let rowParentsCount = {};
+
+  const reportRows = useSelector((state) => state.report.reportRows);
+  const reportCols = useSelector((state) => state.report.reportCols);
+  const reportPages = useSelector((state) => state.report.reportPages);
+  const reportExpandedRows = useSelector(
+    (state) => state.report.reportExpandedRows
+  );
+  const reportExpandedCols = useSelector(
+    (state) => state.report.reportExpandedCols
+  );
+  const reportExpandedPages = useSelector(
+    (state) => state.report.reportExpandedPages
+  );
+  const reportTableData = useSelector((state) => state.report.reportTableData);
+  const reportDatabase = useSelector((state) => state.report.reportDatabase);
+  const saveLogDispatch = () => {
+    const user_id = "0";
+    const time = new Date();
+    console.log("CommonTools time", time)
+    const database = reportDatabase;
+    const log = {
+      rows: reportRows,
+      cols: reportCols,
+      pages: reportPages,
+      expandedRows: reportExpandedRows,
+      expandedCols: reportExpandedCols,
+      expandedPages: reportExpandedPages,
+      tableData: reportTableData,
+      pivotInfo: pivotInfo
+    };
+    dispatch(
+      saveLog({ user_id: user_id, time: time, database: database, log: log })
+    );
+  };
   // let colParentsCount = {};
   // let rowHeaderIndex = [];
 
@@ -206,6 +241,7 @@ const CommonToolsItem = (props) => {
                 >
                   <Button
                     onClick={() => {
+                      saveLogDispatch();
                       dispatch(pivot({ rows, cols, filters: filters })).then(
                         (result) => {
                           let pivotResult = result.payload.Return;
@@ -395,6 +431,7 @@ const CommonToolsItem = (props) => {
                 <MenuItem onClick={popupState.close}>
                   <Button
                     onClick={() => {
+                      saveLogDispatch();
                       dispatch(pivot({ rows, cols, filters: filters })).then(
                         (result) => {
                           let pivotResult = result.payload.Return;
@@ -553,7 +590,12 @@ const CommonToolsItem = (props) => {
                                       )}
                                     </tr>
                                   </thead>
-                                  <tbody style={{borderBottom: "1px solid rgb(199, 199, 199)"}}>
+                                  <tbody
+                                    style={{
+                                      borderBottom:
+                                        "1px solid rgb(199, 199, 199)",
+                                    }}
+                                  >
                                     {modifiedData.map((data, index) => {
                                       return (
                                         <tr style={{ textAlign: "center" }}>

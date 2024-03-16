@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ReportService from "../services/ReportService";
 
 const initialState = {
+  reportDatabase: [],
   reportTables: [],
   reportDimTable: [],
   reportRows: [],
@@ -14,7 +15,7 @@ const initialState = {
   reportExpandedRows: [],
   reportExpandedCols: [],
   reportExpandedPages: [],
-
+  reportHistory: []
 };
 
 // export const connectDB = createAsyncThunk(
@@ -24,6 +25,17 @@ const initialState = {
 //     return res.data;
 //   }
 // );
+
+export const saveLog = createAsyncThunk("/saveLog", async (logInfo) => {
+  console.log("report slice savelog", logInfo);
+  const res = await ReportService.saveLog(logInfo);
+  return res.data;
+});
+
+export const reportHistory = createAsyncThunk("/reportHistory", async (userInfo) => {
+  const res = await ReportService.reportHistory(userInfo);
+  return res.data;
+});
 
 export const getTables = createAsyncThunk("/getTables", async (dbInfo) => {
   const res = await ReportService.getTables(dbInfo);
@@ -48,8 +60,20 @@ export const reportSlice = createSlice({
   name: "report",
   initialState,
   reducers: {
+    setReportDatabase: (state, action) => {
+      state.reportDatabase = action.payload;
+    },
+
+    setReportHistory: (state, action) => {
+      state.reportHistory = action.payload;
+    },
+
     setReportTables: (state, action) => {
       state.reportTables = action.payload;
+    },
+
+    setReportTableData: (state, action) => {
+      state.reportTableData = action.payload;
     },
 
     setReportDimTable: (state, action) => {
@@ -87,6 +111,27 @@ export const reportSlice = createSlice({
       state.reportPivotInfo[kind] = data
       // state.reportPages = action.payload;
     },
+
+    setSavedData: (state, action) => {
+      const {
+        rows,
+        cols,
+        pages,
+        expandedRows,
+        expandedCols,
+        expandedPages,
+        tableData,
+        pivotInfo
+      } = action.payload;
+      state.reportRows = rows;
+      state.reportCols = cols;
+      state.reportPages = pages;
+      state.reportExpandedRows = expandedRows;
+      state.reportExpandedCols = expandedCols;
+      state.reportExpandedPages = expandedPages;
+      state.reportTableData = tableData;
+      state.reportPivotInfo = pivotInfo
+    }
   },
   extraReducers: {
     [getTables.fulfilled]: (state, action) => {
@@ -108,6 +153,16 @@ export const reportSlice = createSlice({
       }
       return state;
     },
+    [saveLog.fulfilled]: (state, action) => {
+      console.log("Response of saveLog request", action.payload)
+      state.reportHistory.unshift(action.payload);
+      return state;
+    },
+    [reportHistory.fulfilled]: (state, action) => {
+      console.log("Response of reportHistroy request", action.payload)
+      state.reportHistory = action.payload;
+      return state;
+    },
     [getTableData.fulfilled]: (state, action) => {
       for (const key in action.payload) {
         // console.log(key, action.payload[key])
@@ -125,14 +180,18 @@ export const reportSlice = createSlice({
 });
 
 export const {
+  setReportDatabase,
+  setReportHistory,
   setReportRows,
   setReportCols,
   setReportPages,
   setReportDimTable,
   setReportTables,
+  setReportTableData,
   setReportPivotInfo,
   setReportExpandedRows,
   setReportExpandedCols,
   setReportExpandedPages,
+  setSavedData
 } = reportSlice.actions;
 export default reportSlice.reducer;

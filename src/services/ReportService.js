@@ -1,6 +1,16 @@
 import http from "../config/http-common";
 import axios from "axios";
 
+const saveLog = (logInfo) => {
+  console.log("saveLog service", logInfo);
+  return http.post("/saveLog", logInfo)
+}
+
+const reportHistory = (userInfo) => {
+  console.log("reportHistory service", userInfo)
+  return http.post("/reportHistory", userInfo)
+}
+
 const getTables = (dbInfo) => {
   return http.post("/getTables", dbInfo);
 };
@@ -26,7 +36,9 @@ const pivot = (pivotInfo) => {
 const ReportService = {
   pivot,
   getTables,
-  getTableData
+  getTableData,
+  reportHistory,
+  saveLog
 };
 
 export default ReportService;

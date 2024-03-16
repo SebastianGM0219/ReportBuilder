@@ -184,7 +184,7 @@ export default function DimensionLayoutDialog({
           </Box>
           <Box sx={{ mt: 2 }}>
             <Typography>
-              Drag dimensions to rows, columns, pages or the Point of View. The
+              Drag dimensions to rows, columns, pages or the filters. The
               use of Attribute dimensions is optional.
             </Typography>
           </Box>
@@ -254,7 +254,7 @@ export default function DimensionLayoutDialog({
           </Box>
           {/* Ponit Of View Drag and Drop */}
           <Box sx={{ mt: 2 }}>
-            <Typography sx={{ fontWeight: 1000 }}>Point of View</Typography>
+            <Typography sx={{ fontWeight: 1000 }}>Filters</Typography>
             <Box
               sx={{
                 border: "1px solid grey",

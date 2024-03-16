@@ -13,7 +13,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import PostAddIcon from '@mui/icons-material/PostAdd';
+import PostAddIcon from "@mui/icons-material/PostAdd";
 
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -21,7 +21,7 @@ import FormControl from "@mui/material/FormControl";
 
 import NewConnectionDialog from "./NewConnectionDialog";
 
-import { getTables } from "../../slices/report";
+import { getTables, reportHistory, setReportDatabase } from "../../slices/report";
 
 import { notifyContents } from "../Common/Notification";
 
@@ -38,20 +38,21 @@ export default function DatabaseConnectDialog({
   handleDatabaseConnectDialogOK,
 }) {
   const dispatch = useDispatch();
-  const dbs = useSelector(state => state.database.dbs);
+  const dbs = useSelector((state) => state.database.dbs);
 
   const [database, setDatabase] = React.useState("");
-  const [newConnectionOpen, setNewConnectionOpen] = React.useState(false); 
+  const [newConnectionOpen, setNewConnectionOpen] = React.useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const handleChange = (event) => {
     setDatabase(event.target.value);
+    dispatch(setReportDatabase(event.target.value))
   };
 
   const handleNewConnectionOpen = () => {
     setNewConnectionOpen(!newConnectionOpen);
-  }
+  };
 
   const snackbarWithStyle = (content, variant) => {
     enqueueSnackbar(content, {
@@ -91,14 +92,19 @@ export default function DatabaseConnectDialog({
               label="Database"
               onChange={handleChange}
             >
-              {dbs.map(db => {
-                return (<MenuItem value={db}>{db}</MenuItem>)
+              {dbs.map((db) => {
+                return <MenuItem value={db}>{db}</MenuItem>;
               })}
               {/* <MenuItem value={"test"}>Test</MenuItem> */}
             </Select>
           </FormControl>
         </Box>
-        <Button style={{marginTop: "10px"}} variant="contained" startIcon={<PostAddIcon />} onClick={handleNewConnectionOpen}>
+        <Button
+          style={{ marginTop: "10px" }}
+          variant="contained"
+          startIcon={<PostAddIcon />}
+          onClick={handleNewConnectionOpen}
+        >
           New Connection
         </Button>
       </DialogContent>
@@ -107,16 +113,19 @@ export default function DatabaseConnectDialog({
           variant="contained"
           sx={{ float: "right" }}
           onClick={() => {
-            dispatch(getTables({database: database}))
-             .then(res => {
-              const {success} = res.payload;
+            dispatch(getTables({ database: database })).then((res) => {
+              const { success } = res.payload;
               // console.log("$$$$$$$$$getTables Response", success)
-              if(success) {
-                snackbarWithStyle(notifyContents.databaseSelectSuccess, "success");
+              if (success) {
+                snackbarWithStyle(
+                  notifyContents.databaseSelectSuccess,
+                  "success"
+                );
               } else {
                 snackbarWithStyle(notifyContents.databaseSelectFail, "error");
               }
-             });
+            });
+            dispatch(reportHistory({ user_id: "0", database: database }));
             handleDatabaseConnectDialogOK();
           }}
         >
@@ -130,7 +139,11 @@ export default function DatabaseConnectDialog({
           Cancel
         </Button>
       </DialogActions>
-      <NewConnectionDialog open={newConnectionOpen} handleOpen={handleNewConnectionOpen} handleClose={handleNewConnectionOpen}/>
+      <NewConnectionDialog
+        open={newConnectionOpen}
+        handleOpen={handleNewConnectionOpen}
+        handleClose={handleNewConnectionOpen}
+      />
     </Dialog>
   );
 }
