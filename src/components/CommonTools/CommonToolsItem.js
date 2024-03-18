@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -22,10 +22,12 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { saveAs } from "file-saver";
 import XLSX from "xlsx";
-import { colors } from "@mui/material";
+import { Typography, colors } from "@mui/material";
 import { renderToString } from "react-dom/server";
 import { render } from "@testing-library/react";
 import { ReportProblemSharp } from "@mui/icons-material";
+import ExportDialog from "../Dialogs/ExportDialog";
+import { exportImage } from "@progress/kendo-drawing";
 
 const CommonToolsItem = (props) => {
   const dispatch = useDispatch();
@@ -39,6 +41,7 @@ const CommonToolsItem = (props) => {
   const filters = pivotInfo.pages;
 
   const [displayData, setDisplayData] = React.useState([]);
+  const [exportDialog, setExportDialog] = React.useState(false);
 
   let rowParentsCount = {};
 
@@ -59,7 +62,7 @@ const CommonToolsItem = (props) => {
   const saveLogDispatch = () => {
     const user_id = "0";
     const time = new Date();
-    console.log("CommonTools time", time)
+    console.log("CommonTools time", time);
     const database = reportDatabase;
     const log = {
       rows: reportRows,
@@ -69,11 +72,25 @@ const CommonToolsItem = (props) => {
       expandedCols: reportExpandedCols,
       expandedPages: reportExpandedPages,
       tableData: reportTableData,
-      pivotInfo: pivotInfo
+      pivotInfo: pivotInfo,
     };
     dispatch(
       saveLog({ user_id: user_id, time: time, database: database, log: log })
     );
+  };
+
+  React.useEffect(() => {
+    console.log("userEffect:", exportDialog);
+  }, [exportDialog]);
+
+  const handleExportDialogOK = () => {
+    setExportDialog(false);
+    console.log("In commonToolsItem, handleExportDialogClose called");
+  };
+
+  const handleExportDialogClose = () => {
+    setExportDialog(false);
+    console.log("In commonToolsItem, handleExportDialogClose called");
   };
   // let colParentsCount = {};
   // let rowHeaderIndex = [];
@@ -176,6 +193,10 @@ const CommonToolsItem = (props) => {
       sx={{ justifyContent: "center", whiteSpace: "nowrap" }}
     />
   );
+
+  let handleClick = () => {
+    console.log("CommonTools", props.text, "clicked!");
+  };
 
   switch (props.text) {
     case "Undo":
@@ -711,6 +732,12 @@ const CommonToolsItem = (props) => {
     case "Print":
       iconToRender = <PrintIcon />;
       break;
+    case "Export":
+      iconToRender = <PrintIcon />;
+      handleClick = () => {
+        setExportDialog(true);
+      };
+      break;
     default:
       iconToRender = <HomeOutlinedIcon />;
   }
@@ -725,6 +752,7 @@ const CommonToolsItem = (props) => {
           display: "flex",
           flexDirection: "column",
         }}
+        onClick={handleClick}
       >
         <ListItemIcon
           sx={{
@@ -740,7 +768,11 @@ const CommonToolsItem = (props) => {
           sx={{ justifyContent: "center" }}
         /> */}
       </ListItemButton>
-
+      <ExportDialog
+        open={exportDialog}
+        handleExportDialogClose={handleExportDialogClose}
+        handleExportDialogOK={handleExportDialogOK}
+      />
       {/* <html style={{ display: "none" }} ref={exportHTMLRef}>
         <body style={{ padding: "20px" }}>
           {filters !== undefined &&

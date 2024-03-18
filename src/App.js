@@ -16,6 +16,8 @@ import MuiDrawer from "@mui/material/Drawer";
 
 import { TreeItem, treeItemClasses } from "@mui/x-tree-view/TreeItem";
 
+import "@progress/kendo-theme-default/dist/all.css";
+
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {

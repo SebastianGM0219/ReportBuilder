@@ -21,10 +21,7 @@ const CommonTools = () => {
           <CommonToolsItem text={text} key={text}/>
         ))}
         <Divider orientation="vertical" variant="middle" flexItem />
-        {["SaveAs"].map((text, index) => (
-          <CommonToolsItem text={text} key={text}/>
-        ))}
-        {["Print"].map((text, index) => (
+        {["SaveAs", "Print", "Export"].map((text, index) => (
           <CommonToolsItem text={text} key={text}/>
         ))}
       </List>
