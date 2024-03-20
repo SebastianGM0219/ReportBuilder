@@ -1,28 +1,34 @@
 import * as React from "react";
 import { useSelector, useDispatch } from "react-redux";
-
-import { useSnackbar } from "notistack";
-
-import Button from "@mui/material/Button";
-import { Box, Grid, Typography, Select } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import IconButton from "@mui/material/IconButton";
+import {
+  Box,
+  Typography,
+  Select,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  FormControl
+} from "@mui/material";
+
 import CloseIcon from "@mui/icons-material/Close";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-
 import NewConnectionDialog from "./NewConnectionDialog";
 
-import { getTables, reportHistory, setReportDatabase } from "../../slices/report";
+import {
+  getTables,
+  reportHistory,
+  setReportDatabase,
+} from "../../slices/report";
 
+import { useCustomSnackbar } from "../../CustomSnackbarProvider";
 import { notifyContents } from "../Common/Notification";
 
 const CustomDialogTitle = styled(DialogTitle)(({ theme }) => ({
@@ -43,25 +49,16 @@ export default function DatabaseConnectDialog({
   const [database, setDatabase] = React.useState("");
   const [newConnectionOpen, setNewConnectionOpen] = React.useState(false);
 
-  const { enqueueSnackbar } = useSnackbar();
-
   const handleChange = (event) => {
     setDatabase(event.target.value);
-    dispatch(setReportDatabase(event.target.value))
+    dispatch(setReportDatabase(event.target.value));
   };
 
   const handleNewConnectionOpen = () => {
     setNewConnectionOpen(!newConnectionOpen);
   };
 
-  const snackbarWithStyle = (content, variant) => {
-    enqueueSnackbar(content, {
-      variant: variant,
-      style: { width: "350px" },
-      autoHideDuration: 3000,
-      anchorOrigin: { vertical: "top", horizontal: "right" },
-    });
-  };
+  const snackbarWithStyle = useCustomSnackbar();
 
   return (
     <Dialog
@@ -92,10 +89,13 @@ export default function DatabaseConnectDialog({
               label="Database"
               onChange={handleChange}
             >
-              {dbs.map((db) => {
-                return <MenuItem value={db}>{db}</MenuItem>;
+              {dbs.map((db, index) => {
+                return (
+                  <MenuItem value={db} key={index}>
+                    {db}
+                  </MenuItem>
+                );
               })}
-              {/* <MenuItem value={"test"}>Test</MenuItem> */}
             </Select>
           </FormControl>
         </Box>
@@ -115,7 +115,6 @@ export default function DatabaseConnectDialog({
           onClick={() => {
             dispatch(getTables({ database: database })).then((res) => {
               const { success } = res.payload;
-              // console.log("$$$$$$$$$getTables Response", success)
               if (success) {
                 snackbarWithStyle(
                   notifyContents.databaseSelectSuccess,

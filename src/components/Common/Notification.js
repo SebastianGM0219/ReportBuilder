@@ -1,6 +1,3 @@
-import * as React from "react";
-import { Alert, Snackbar } from "@mui/material";
-
 export const notifyContents = {
   newConnectSuccess : "You connect to the database successfully.",
   newConnectFail: "You can't connect to the database.",

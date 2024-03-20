@@ -1,8 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { useSelector, useDispatch } from "react-redux";
 import TableService from "../services/TableService";
-import { current } from "@reduxjs/toolkit";
-import { setRelationData } from "../slices/query";
 
 const initialState = [];
 //  const dispatch = useDispatch();
@@ -97,10 +94,10 @@ const tableSlice = createSlice({
       return newState;
     },
   },
-  extraReducers: {
-    [getTables.fulfilled]: (state, action) => {
-      return [...action.payload];
-    },
+  extraReducers: (builder) => {
+    builder.addCase(getTables.fulfilled, (state, action) => {
+      state.tables = action.payload;
+    });
   },
 });
 const { reducer } = tableSlice;

@@ -32,21 +32,13 @@ const databaseSlice = createSlice({
       state.dbInfo = action.payload;
     },
   },
-  extraReducers: {
-    [connectDB.fulfilled]: (state, action) => {
+  extraReducers: (builder) => {
+    builder.addCase(connectDB.fulfilled, (state, action) => {
       const { success, databases } = action.payload;
-      if(success) {
+      if (success) {
         state.dbs = databases;
       }
-      // state.primaryKeyInfo = action.payload.primaryKeyInfo; // Assuming primary key information is included in the response
-      // state.foreignKeyInfo = action.payload.foreignKeyInfo; // Assuming foreign key information is included in the response
-      // state.tableFieldInfo = action.payload.tableFieldInfo; // Assuming table and field information is included in the response
-
-      // state.primaryKeyInfo = action.payload.primaryKeyInfo; // Assuming primary key information is included in the response
-      // state.foreignKeyInfo = action.payload.foreignKeyInfo; // Assuming foreign key information is included in the response
-      // state.tableFieldInfo = action.payload.tableFieldInfo; // Assuming table and field information is included in the response
-      return state;
-    },
+    });
   },
 });
 

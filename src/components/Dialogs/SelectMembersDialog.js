@@ -1,45 +1,40 @@
 import * as React from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { styled } from "@mui/material/styles";
 
-import Button from "@mui/material/Button";
 import {
+  Button,
   Box,
   Grid,
-  Typography,
   Select,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Checkbox
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
-
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl, { formControlClasses } from "@mui/material/FormControl";
 
 import { TreeView } from "@mui/x-tree-view/TreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 
+import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 import {
-  getTables,
-  getTableData,
   setReportPivotInfo,
   setReportExpandedRows,
   setReportExpandedCols,
   setReportExpandedPages,
 } from "../../slices/report";
-import Checkbox from "@mui/material/Checkbox";
 
 const CustomDialogTitle = styled(DialogTitle)(({ theme }) => ({
   display: "flex",
@@ -48,9 +43,8 @@ const CustomDialogTitle = styled(DialogTitle)(({ theme }) => ({
   fontWeight: 1000,
 }));
 
-// Function to convert flat array to tree structure
+// Convert flat array to tree structure
 const convertToTree = (arr, parent) => {
-  //   console.log("convertToTree input&&&&&&&&&&&&&&&&", arr);
   const tree = {};
   if (arr !== undefined) {
     arr.forEach((item) => {
@@ -81,8 +75,7 @@ export default function SelectMembersDialog({
   handleSelectMembersDialogOK,
 }) {
   const dispatch = useDispatch();
-  //   dispatch(getTableData("customer"));
-  // console.log("selectMembersDialog kind", kind)
+
   const [checked, setChecked] = React.useState([]);
   const [selected, setSelected] = React.useState([]);
   const [rightChecked, setRightChecked] = React.useState([]);
@@ -91,10 +84,6 @@ export default function SelectMembersDialog({
   const treeData = convertToTree(tableData, null);
 
   const [member, setMember] = React.useState("Name");
-
-  React.useEffect(() => {
-    console.log("tableData", tableData);
-  }, tableData);
 
   React.useEffect(() => {
     setSelected([]);
@@ -107,7 +96,7 @@ export default function SelectMembersDialog({
   const handleOKButtonClicked = () => {
     let tmpDim = [];
     let tmpPivotValue = [];
-    console.log("****************kind, selectd", kind, selected);
+    // console.log("****************kind, selectd", kind, selected);
 
     selected.forEach((node) => {
       if (node.member !== undefined)
@@ -119,32 +108,39 @@ export default function SelectMembersDialog({
 
     selected.forEach((node) => {
       let text;
-    //   if(node.member !== undefined) {
 
-          switch (node.member) {
-            case "IChildren":
-              text = `Children of ${node.name}(Inclusive)`;
-              break;
-            case "Children":
-              text = `Children of ${node.name}`;
-              break;
-            case "IDescendants":
-              text = `Descendants of ${node.name}(Inclusive)`;
-              break;
-            case "Descendants":
-              text = `Descendants of ${node.name}`;
-              break;
-            default:
-              text = node.name;
-              break;
-          }
-    //   } else {
-    //     text = node.name
-    //   }
+      switch (node.member) {
+        case "IChildren":
+          text = `Children of ${node.name}(Inclusive)`;
+          break;
+        case "Children":
+          text = `Children of ${node.name}`;
+          break;
+        case "IDescendants":
+          text = `Descendants of ${node.name}(Inclusive)`;
+          break;
+        case "Descendants":
+          text = `Descendants of ${node.name}`;
+          break;
+        default:
+          text = node.name;
+          break;
+      }
       if (node.member !== undefined)
-        tmpDim.push({ id: table, content: text, dimension: table, member: node.name, relation: node.member });
-
-      else tmpDim.push({ id: table, content: text, dimension: table, member: node.name });     
+        tmpDim.push({
+          id: table,
+          content: text,
+          dimension: table,
+          member: node.name,
+          relation: node.member,
+        });
+      else
+        tmpDim.push({
+          id: table,
+          content: text,
+          dimension: table,
+          member: node.name,
+        });
     });
 
     switch (kind) {
@@ -158,8 +154,8 @@ export default function SelectMembersDialog({
         dispatch(setReportExpandedPages(tmpDim));
         break;
     }
-    // console.log("###############pivotInfo", tmpPivotValue)
-    dispatch(setReportPivotInfo({kind, data:tmpPivotValue}))
+
+    dispatch(setReportPivotInfo({ kind, data: tmpPivotValue }));
     setSelected([]);
     setChecked([]);
     handleSelectMembersDialogOK();
@@ -179,7 +175,6 @@ export default function SelectMembersDialog({
   };
 
   const nodeExistedInChecked = (checked, nodes) => {
-    // console.log("checkbox checked", checked, nodes);
     return checked.some((obj) => obj["id"] === nodes.id);
   };
 
@@ -230,7 +225,6 @@ export default function SelectMembersDialog({
       checkedWithMember = [...checkedWithMember, ...checked];
     }
     checkedWithMember = uniquizeArrayOfObjects(checkedWithMember, "id");
-    // console.log("checkedWIthMember", checkedWithMember);
     setSelected(checkedWithMember);
     setRightChecked([]);
   };
@@ -265,7 +259,6 @@ export default function SelectMembersDialog({
 
       <DialogContent>
         <Box>
-          {/* <Typography>Members</Typography> */}
           <Grid container>
             <Grid item xs={8}>
               <Box sx={{ minWidth: 120, mt: 2 }}>
@@ -297,14 +290,14 @@ export default function SelectMembersDialog({
                 </TreeView>
               </Box>
             </Grid>
-            <Grid item xs={1}>
-              <Grid container direction="column" alignItems="center">
+            <Grid item xs={1} sx={{display: 'flex', alignItems: 'center'}}>
+              <Grid container>
+                <Box sx={{display: 'flex', alignItems:'center', flexWrap:'wrap', flexDirection:'column'}}>
                 <Button
                   sx={{ my: 0.5 }}
                   variant="text"
                   size="small"
                   onClick={handleCheckedRight}
-                  //   disabled={leftChecked.length === 0}
                   aria-label="move selected right"
                 >
                   &gt;
@@ -314,11 +307,11 @@ export default function SelectMembersDialog({
                   variant="text"
                   size="small"
                   onClick={handleCheckedLeft}
-                  //   disabled={rightChecked.length === 0}
                   aria-label="move selected left"
                 >
                   &lt;
                 </Button>
+                </Box>
               </Grid>
             </Grid>
             <Grid item xs={3}>

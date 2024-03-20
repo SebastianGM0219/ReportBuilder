@@ -19,7 +19,6 @@ import {
   setReportCols,
   setReportPages,
   setReportDimTable,
-  setReportPivotInfo,
 } from "../../slices/report";
 
 const CustomDialogTitle = styled(DialogTitle)(({ theme }) => ({
@@ -29,20 +28,26 @@ const CustomDialogTitle = styled(DialogTitle)(({ theme }) => ({
   fontWeight: 1000,
 }));
 
-const initialData = [
-  { id: "task-1", content: "Task 1" },
-  { id: "task-2", content: "Task 2" },
-  // More tasks...
-];
-
-const initTables = [
-  { id: "sales", content: "sales" },
-  { id: "period", content: "period" },
-  { id: "product", content: "product" },
-  { id: "customer", content: "customer" },
-];
-const initPages = [{ id: "sales", content: "sales" }];
-const initRows = [{ id: "", content: "" }];
+const DisplayTable = ({ tableName }) => {
+  return (
+    <Box
+      style={{
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      <ViewInArIcon style={{ fontSize: "medium" }} />
+      <Typography
+        style={{
+          fontWeight: "bold",
+          paddingLeft: "3px",
+        }}
+      >
+        {tableName}
+      </Typography>
+    </Box>
+  );
+};
 
 export default function DimensionLayoutDialog({
   open,
@@ -78,8 +83,6 @@ export default function DimensionLayoutDialog({
   React.useEffect(() => {
     setPages([...reduxPages]);
   }, [reduxPages]);
-
-  const pivotInfo = {};
 
   const onDragEnd = (result) => {
     // console.log("onDragEnd", result);
@@ -134,12 +137,9 @@ export default function DimensionLayoutDialog({
       default:
         break;
     }
-    // console.log("source, destination", sourceItems, destinationItems)
     if (source.droppableId !== destination.droppableId) {
       const [removed] = sourceItems.splice(source.index, 1);
-      // sourceItems.filter((item) => {
-      //   return item.id !== source.droppableId
-      // })
+
       destinationItems.splice(destination.index, 0, removed);
       setDestinationItems(destinationItems);
       setSourceItems(sourceItems);
@@ -184,8 +184,8 @@ export default function DimensionLayoutDialog({
           </Box>
           <Box sx={{ mt: 2 }}>
             <Typography>
-              Drag dimensions to rows, columns, pages or the filters. The
-              use of Attribute dimensions is optional.
+              Drag dimensions to rows, columns, pages or the filters. The use of
+              Attribute dimensions is optional.
             </Typography>
           </Box>
           <Box sx={{ mt: 2 }}>
@@ -221,24 +221,7 @@ export default function DimensionLayoutDialog({
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                               >
-                                <Box
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <ViewInArIcon
-                                    style={{ fontSize: "medium" }}
-                                  />
-                                  <Typography
-                                    style={{
-                                      fontWeight: "bold",
-                                      paddingLeft: "3px",
-                                    }}
-                                  >
-                                    {item.content}
-                                  </Typography>
-                                </Box>
+                                <DisplayTable tableName={item.content} />
                                 {provided.placeholder}
                               </Box>
                             )}
@@ -342,24 +325,7 @@ export default function DimensionLayoutDialog({
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                               >
-                                <Box
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <ViewInArIcon
-                                    style={{ fontSize: "medium" }}
-                                  />
-                                  <Typography
-                                    style={{
-                                      fontWeight: "bold",
-                                      paddingLeft: "3px",
-                                    }}
-                                  >
-                                    {item.content}
-                                  </Typography>
-                                </Box>
+                                <DisplayTable tableName={item.content} />
                                 {provided.placeholder}
                               </Box>
                             )}
@@ -368,14 +334,12 @@ export default function DimensionLayoutDialog({
                       })}
                     </Box>
                     {provided.placeholder}
-
-                    {/* {console.log(provided.placeholder)} */}
                   </Box>
                 )}
               </Droppable>
             </Box>
           </Box>
-          {/* <Box sx={{ display: "flex", justifyContent: "space-between" }}> */}
+
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             {/* Rows Drag and Drop */}
             <Box sx={{ mt: 2, mr: 2, width: "100%" }}>
@@ -409,24 +373,7 @@ export default function DimensionLayoutDialog({
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                 >
-                                  <Box
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <ViewInArIcon
-                                      style={{ fontSize: "medium" }}
-                                    />
-                                    <Typography
-                                      style={{
-                                        fontWeight: "bold",
-                                        paddingLeft: "3px",
-                                      }}
-                                    >
-                                      {item.content}
-                                    </Typography>
-                                  </Box>
+                                  <DisplayTable tableName={item.content} />
                                   {provided.placeholder}
                                 </Box>
                               )}
@@ -454,7 +401,7 @@ export default function DimensionLayoutDialog({
                     <Box
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      sx={{ minHeight: "60px", padding: "5px", padding: "5px" }}
+                      sx={{ minHeight: "60px", padding: "5px" }}
                     >
                       {provided.placeholder}
                       <Box>
@@ -471,24 +418,7 @@ export default function DimensionLayoutDialog({
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                 >
-                                  <Box
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <ViewInArIcon
-                                      style={{ fontSize: "medium" }}
-                                    />
-                                    <Typography
-                                      style={{
-                                        fontWeight: "bold",
-                                        paddingLeft: "3px",
-                                      }}
-                                    >
-                                      {item.content}
-                                    </Typography>
-                                  </Box>
+                                  <DisplayTable tableName={item.content} />
                                 </Box>
                               )}
                             </Draggable>
@@ -507,7 +437,6 @@ export default function DimensionLayoutDialog({
             variant="contained"
             sx={{ float: "right" }}
             onClick={() => {
-              // dispatch(setReportPivotInfo({factTable:dimTable}));
               dispatch(setReportDimTable(dimTable));
               dispatch(setReportRows(rows));
               dispatch(setReportCols(cols));
