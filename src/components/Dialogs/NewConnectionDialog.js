@@ -1,36 +1,35 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { styled } from "@mui/material/styles";
 import {
   Button,
+  IconButton,
   Dialog,
+  DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
   TextField,
-  DialogTitle,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useSelector, useDispatch } from "react-redux";
 import { initAllState } from "../../slices/query";
 import { initAllUtility } from "../../slices/utility";
-import { initAllDatabaseTable } from "../../slices/database";
-import { initAllTable } from "../../slices/table";
-import { saveDbInformation } from "../../slices/database";
-import IconButton from "@mui/material/IconButton";
-import SaveIcon from "@mui/icons-material/Save";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
-import Cookies from "js-cookie";
-import { getTables, addUpdateItem } from "../../slices/table";
+import {
+  initAllDatabaseTable,
+  saveDbInformation,
+  connectDB,
+} from "../../slices/database";
+import { initAllTable, getTables } from "../../slices/table";
+
 import CloseIcon from "@mui/icons-material/Close";
-import { Snackbar, Alert } from "@mui/material";
-import { faL } from "@fortawesome/free-solid-svg-icons";
-import DialogContentText from "@mui/material/DialogContentText";
-import { connectDB } from "../../slices/database";
 
-import { useSnackbar } from "notistack";
+import Cookies from "js-cookie";
 
+import { useCustomSnackbar } from "../../CustomSnackbarProvider";
 import { notifyContents } from "../Common/Notification";
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
@@ -89,7 +88,6 @@ export default function NewConnectionDialog({
   //   handleConnect,
   isLoading,
 }) {
-  const { enqueueSnackbar } = useSnackbar();
   const sessionDbInfos = Cookies.get("dbInfos");
   const initialDbInfosArray = sessionDbInfos ? JSON.parse(sessionDbInfos) : [];
   const initialDbInfos =
@@ -124,26 +122,19 @@ export default function NewConnectionDialog({
     initmenu.length > 0 ? false : true
   );
 
-  const snackbarWithStyle = (content, variant) => {
-    enqueueSnackbar(content, {
-      variant: variant,
-      style: { width: "350px" },
-      autoHideDuration: 3000,
-      anchorOrigin: { vertical: "top", horizontal: "right" },
-    });
-  };
+  const snackbarWithStyle = useCustomSnackbar();
 
   const handleConnect = (dbInfos) => {
     // setIsLoading(true)
     dispatch(connectDB(dbInfos))
       .unwrap()
       .then((data) => {
-        console.log("NewConnection connectDB response ", data);
+        // console.log("NewConnection connectDB response ", data);
         if (data.success) {
           //   setAddDialog(false);
           snackbarWithStyle(notifyContents.newConnectSuccess, "success");
-            // setOpen(false)
-            handleClose();
+          // setOpen(false)
+          handleClose();
           //   setSuccess(true)
         } else {
           snackbarWithStyle(notifyContents.newConnectFail, "error");
@@ -206,7 +197,7 @@ export default function NewConnectionDialog({
         }
         return item;
       });
-      console.log(found);
+      // console.log(found);
       if (!found) {
         // snackbarWithStyle(notifyContents.databaseSave, "success")
         newArray.push(newvalue); // If not found, push new value to array
@@ -353,7 +344,7 @@ export default function NewConnectionDialog({
     updatedConnectMenu.splice(index, 1); // Remove one element starting at index 2
     setConnectMenu(updatedConnectMenu);
 
-    if (initialDbInfosArray.length == 0) {
+    if (initialDbInfosArray.length === 0) {
       const initialDbInfos = {
         host: "",
         username: "",

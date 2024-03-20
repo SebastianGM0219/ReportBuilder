@@ -1,42 +1,25 @@
 import * as React from "react";
 import { useSelector, useDispatch } from "react-redux";
-
-import { useSnackbar } from "notistack";
-
-import Button from "@mui/material/Button";
-import { Box, Grid, Typography, Select } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
-import PostAddIcon from "@mui/icons-material/PostAdd";
-
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-
-import NewConnectionDialog from "./NewConnectionDialog";
+import {
+  Button, 
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton
+} from "@mui/material";
 
 import {
-  getTables,
-  reportHistory,
-  setReportDatabase,
-} from "../../slices/report";
-
-import { notifyContents } from "../Common/Notification";
-
-import { Editor, EditorTools, EditorUtils, ProseMirror } from "@progress/kendo-react-editor";
+  Editor,
+  EditorTools,
+} from "@progress/kendo-react-editor";
 import { savePDF } from "@progress/kendo-react-pdf";
 import { InsertImage } from "./insertImageTool";
-import { insertImagePlugin } from "./insertImagePlugin";
-import { insertImageFiles } from "./utils";
 
-
-
+import { saveLog } from "../../slices/report";
+import CloseIcon from "@mui/icons-material/Close";
 const {
   Bold,
   Italic,
@@ -90,80 +73,88 @@ const CustomDialogTitle = styled(DialogTitle)(({ theme }) => ({
   fontWeight: 1000,
 }));
 
-// const InsertSpan = (props) => {
-//   const { view } = props;
-//   const nodeType = view && view.state.schema.nodes.text;
-//   const canInsert = view && EditorUtils.canInsert(view.state, nodeType);
-//   return (
-//     <Button
-//       onClick={() => {
-//         const state = view.state;
-//         const tr = state.tr;
-//         const markType = state.schema.marks.style;
-//         const mark = markType.create({ class: "testSpan" });
-//         const content = state.schema.text("test");
-//         tr.addStoredMark(mark);
-
-//         // https://prosemirror.net/docs/ref/#state.Transaction.replaceSelectionWith
-//         tr.replaceSelectionWith(content, true);
-
-//         view.dispatch(tr);
-//       }}
-//       disabled={!canInsert}
-//       onMouseDown={(e) => e.preventDefault()}
-//       onPointerDown={(e) => e.preventDefault()}
-//       title="Insert span"
-//       // https://www.telerik.com/kendo-angular-ui/components/styling/icons/#toc-list-of-font-icons
-//       icon="comment"
-//     />
-//   );
-// };
-
 export default function ExportDialog({
   open,
+  data,
   handleExportDialogClose,
   handleExportDialogOK,
 }) {
-  const onImageInsert = args => {
-    const {
-      files,
-      view,
-      event
-    } = args;
-    const nodeType = view.state.schema.nodes.image;
-    const position = event.type === 'drop' ? view.posAtCoords({
-      left: event.clientX,
-      top: event.clientY
-    }) : null;
-    insertImageFiles({
-      view,
-      files,
-      nodeType,
-      position
-    });
-    return files.length > 0;
-  };
-  const onMount = event => {
-    const state = event.viewProps.state;
-    const plugins = [...state.plugins, insertImagePlugin(onImageInsert)];
-    return new ProseMirror.EditorView({
-      mount: event.dom
-    }, {
-      ...event.viewProps,
-      state: ProseMirror.EditorState.create({
-        doc: state.doc,
-        plugins
-      })
-    });
-  };
-
-
-
   const dispatch = useDispatch();
+
+  const pivotInfo = useSelector((state) => state.report.reportPivotInfo);
+
+  const reportRows = useSelector((state) => state.report.reportRows);
+  const reportCols = useSelector((state) => state.report.reportCols);
+  const reportPages = useSelector((state) => state.report.reportPages);
+  const reportExpandedRows = useSelector(
+    (state) => state.report.reportExpandedRows
+  );
+  const reportExpandedCols = useSelector(
+    (state) => state.report.reportExpandedCols
+  );
+  const reportExpandedPages = useSelector(
+    (state) => state.report.reportExpandedPages
+  );
+  const reportTableData = useSelector((state) => state.report.reportTableData);
+  const reportDatabase = useSelector((state) => state.report.reportDatabase);
+  const saveLogDispatch = () => {
+    const user_id = "0";
+    const time = new Date();
+    const database = reportDatabase;
+    const log = {
+      rows: reportRows,
+      cols: reportCols,
+      pages: reportPages,
+      expandedRows: reportExpandedRows,
+      expandedCols: reportExpandedCols,
+      expandedPages: reportExpandedPages,
+      tableData: reportTableData,
+      pivotInfo: pivotInfo,
+    };
+    dispatch(
+      saveLog({ user_id: user_id, time: time, database: database, log: log })
+    );
+  };
+
+  // const onImageInsert = (args) => {
+  //   const { files, view, event } = args;
+  //   const nodeType = view.state.schema.nodes.image;
+  //   const position =
+  //     event.type === "drop"
+  //       ? view.posAtCoords({
+  //           left: event.clientX,
+  //           top: event.clientY,
+  //         })
+  //       : null;
+  //   insertImageFiles({
+  //     view,
+  //     files,
+  //     nodeType,
+  //     position,
+  //   });
+  //   return files.length > 0;
+  // };
+  // const onMount = (event) => {
+  //   const state = event.viewProps.state;
+  //   const plugins = [...state.plugins, insertImagePlugin(onImageInsert)];
+  //   return new ProseMirror.EditorView(
+  //     {
+  //       mount: event.dom,
+  //     },
+  //     {
+  //       ...event.viewProps,
+  //       state: ProseMirror.EditorState.create({
+  //         doc: state.doc,
+  //         plugins,
+  //       }),
+  //     }
+  //   );
+  // };
 
   const editor = React.createRef();
 
   const exportPDF = () => {
+    saveLogDispatch();
     let element = editor.current;
     console.log("editor.current:", element.view.dom);
     savePDF(element.view.dom, {
@@ -175,8 +166,8 @@ export default function ExportDialog({
   };
 
   const exportHTML = () => {
+    saveLogDispatch();
     let element = editor.current;
-    // let htmlFile = renderToString(element.view.dom);
 
     const blob = new Blob([element.view.dom.outerHTML], {
       type: "text/html",
@@ -257,9 +248,7 @@ export default function ExportDialog({
             height: "100%",
           }}
           ref={editor}
-          defaultContent={
-            '<body style="padding:20px"><h3>CUSTOMER: Total</h3><br/><table style="border-collapse:collapse"><thead><tr><th style="background-color:rgb(245, 245, 245);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)"></th><th style="background-color:rgb(245, 245, 245);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)" colSpan="1">Total</th><th style="background-color:rgb(245, 245, 245);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)" colSpan="1">2016-2020</th><th style="background-color:rgb(245, 245, 245);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)" colSpan="1">2016</th></tr></thead><tbody style="border-bottom:1px solid rgb(199, 199, 199)"><tr style="text-align:center"><td style="border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)"></td><td style="border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">Total</td><td style="border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">2016-2020</td><td style="border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">2016</td></tr><tr style="text-align:center"><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">Total</td><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">195237</td><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">49289</td><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">345</td></tr><tr style="text-align:center"><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">Hardware</td><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">90935</td><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">18106</td><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)"></td></tr><tr style="text-align:center"><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">Laptops</td><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">70848</td><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)">8685</td><td style="background-color:rgb(222, 217, 222);border-top:1px solid rgb(199, 199, 199);border-bottom:1px solid rgb(199, 199, 199);border-left:1px solid rgb(199, 199, 199);border-right:1px solid rgb(199, 199, 199)"></td></tr></tbody></table></body>'
-          }
+          defaultContent={data}
         />
       </DialogContent>
       <DialogActions sx={{ display: "block", padding: "4px 24px" }}>

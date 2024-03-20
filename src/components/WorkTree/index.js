@@ -1,34 +1,20 @@
 import * as React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { styled, useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
+import { Box, Typography, IconButton } from "@mui/material";
 
 import MuiDrawer from "@mui/material/Drawer";
 
-// import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
-
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-// import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+
 import { TreeView } from "@mui/x-tree-view/TreeView";
 import { TreeItem, treeItemClasses } from "@mui/x-tree-view/TreeItem";
-import { Tooltip } from "@mui/material";
 
-import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import GridOnIcon from "@mui/icons-material/GridOn";
-import report, {
-  setReportRows,
-  setReportTableData,
-  setReportTables,
-  setSavedData,
-} from "../../slices/report";
-import { useDispatch } from "react-redux";
+import { setSavedData } from "../../slices/report";
 
 const drawerWidth = 240;
 
@@ -164,13 +150,12 @@ const WorkTree = () => {
   const dispatch = useDispatch();
 
   const [open, setOpen] = React.useState(true);
-  const [tabValue, setTabValue] = React.useState(0);
   const [treeData, setTreeData] = React.useState([]);
   const reportHistory = useSelector((state) => state.report.reportHistory);
 
   React.useEffect(() => {
+    //Group report history by date
     const groupedData = reportHistory.reduce((acc, obj) => {
-      console.log("WorkTree groupedData", reportHistory)
       const date = obj.time.split("T")[0];
 
       if (acc[date]) {
@@ -182,6 +167,7 @@ const WorkTree = () => {
       return acc;
     }, {});
 
+    //Sort grouped report history by date
     const sortedGroupedData = Object.keys(groupedData)
       .sort((a, b) => new Date(b) - new Date(a))
       .reduce((acc, date) => {
@@ -189,6 +175,7 @@ const WorkTree = () => {
         return acc;
       }, {});
 
+    //Make sorted report history to tree data to display
     const tmpTreeData = Object.keys(sortedGroupedData).map((date) => ({
       date,
       children: sortedGroupedData[date],
@@ -201,10 +188,6 @@ const WorkTree = () => {
     setOpen(!open);
   };
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
-
   return (
     <Drawer
       variant="permanent"
@@ -212,12 +195,7 @@ const WorkTree = () => {
       PaperProps={{ style: { position: "relative" } }}
     >
       <Box
-        style={{
-          width: "100%",
-          backgroundColor: "#C5C1C5",
-          paddingLeft: "10px",
-          fontWeight: "900",
-        }}
+        style={styles.title}
       >
         {open ? "Repository" : "Repo..."}
       </Box>
@@ -245,62 +223,33 @@ const WorkTree = () => {
                 labelIcon={FolderOpenIcon}
               >
                 {parent.children.map((child, childIndex) => (
-                  // <Tooltip
-                  //   title={`${JSON.stringify(child.log).slice(0, 100)}...`}
-                  //   placement="top-start"
-                  // >
-                    <StyledTreeItem
-                      key={`${index}_${childIndex}`}
-                      nodeId={`${index}_${childIndex}`}
-                      labelText={JSON.stringify(child.time)}
-                      onClick={() => {
-                        dispatch(setSavedData(child.log));
-                      }}
-                    />
-                  // </Tooltip>
+                  <StyledTreeItem
+                    key={`${index}_${childIndex}`}
+                    nodeId={`${index}_${childIndex}`}
+                    labelText={JSON.stringify(child.time)}
+                    onClick={() => {
+                      dispatch(setSavedData(child.log));
+                    }}
+                  />
                 ))}
               </StyledTreeItem>
             );
           })}
-          {/* <StyledTreeItem
-            nodeId="1"
-            labelText="Folders"
-            labelIcon={FolderOpenIcon}
-          >
-            <StyledTreeItem
-              nodeId="2"
-              labelText="table"
-              labelIcon={GridOnIcon}
-            />
-          </StyledTreeItem>
-          <StyledTreeItem
-            nodeId="5"
-            labelText="Folders"
-            labelIcon={FolderOpenIcon}
-          >
-            <StyledTreeItem
-              nodeId="10"
-              labelText="table"
-              labelIcon={GridOnIcon}
-            />
-            <StyledTreeItem
-              nodeId="6"
-              labelText="Folders"
-              labelIcon={FolderOpenIcon}
-            >
-              <StyledTreeItem
-                nodeId="8"
-                labelText="table"
-                labelIcon={GridOnIcon}
-              />
-            </StyledTreeItem>
-          </StyledTreeItem> */}
         </TreeView>
       ) : (
         <div></div>
       )}
     </Drawer>
   );
+};
+
+const styles = {
+  title: {
+    width: "100%",
+    backgroundColor: "#C5C1C5",
+    paddingLeft: "10px",
+    fontWeight: "900",
+  },
 };
 
 export default WorkTree;

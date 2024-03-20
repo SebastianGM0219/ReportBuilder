@@ -1,18 +1,19 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
+
+import {
+  List,
+  Divider,
+  IconButton
+} from "@mui/material";
+
 import MuiDrawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 import AsideListItem from "./AsideListItem";
 
-// const drawerWidth = 240;
-
 const openedMixin = (theme) => ({
-  // width: drawerWidth,
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
@@ -44,10 +45,6 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 const Aside = () => {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-
-  // const handleDrawerOpen = () => {
-  //   setOpen(true);
-  // };
 
   const handleDrawerClose = () => {
     setOpen(false);
@@ -84,17 +81,14 @@ const Aside = () => {
       <Divider />
 
       <List>
-        {["Create"].map((text, index) => (
-          <AsideListItem text={text} key={text}/>
+        {["Create"].map((text) => (
+          <AsideListItem text={text} key={text} />
         ))}
       </List>
       <Divider />
       <List>
-        {/* {["Home", "Browse", "Workspaces"].map((text, index) => (
-          <AsideListItem text={text} />
-        ))} */}
-        {["Home", "Data", "Report", "Files"].map((text, index) => (
-          <AsideListItem text={text} key={text}/>
+        {["Home", "Data", "Report", "Files"].map((text) => (
+          <AsideListItem text={text} key={text} />
         ))}
       </List>
     </Drawer>

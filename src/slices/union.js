@@ -1,5 +1,4 @@
 import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
-import { getMouseEventOptions } from "@testing-library/user-event/dist/utils";
 import QueryService from '../services/QueryService'
 
 export const runQuery = createAsyncThunk(
@@ -76,11 +75,7 @@ export const unionSlice = createSlice({
     },  
     removeUnionSelector: (state, action) => {
 
-      const {id} = action.payload;
-      const right = state.rightTree.filter(item => item.id!=action.payload.id)
-      // console.log(right);
-      // console.log(JSON.parse(JSON.stringify(state.leftTree)));
-      // console.log("myguards");
+      const right = state.rightTree.filter(item => item.id !== action.payload.id)
       return {
         ...state,
         leftTree: state.TotalTree.filter(leftItem => {
@@ -91,13 +86,12 @@ export const unionSlice = createSlice({
       }    
     },  
   },
-  extraReducers: {
-    [runQuery.fulfilled]: (state, action) => {
-      const {fields, rowCount, rows} = action.payload;
-
-      state.sheetContent = {fields, rowCount, rows};
-      return state;
-    }
+  extraReducers: (builder) => {
+    builder
+      .addCase(runQuery.fulfilled, (state, action) => {
+        const { fields, rowCount, rows } = action.payload;
+        state.sheetContent = { fields, rowCount, rows };
+      });
   }
 })
 

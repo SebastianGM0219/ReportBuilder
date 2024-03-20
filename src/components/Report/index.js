@@ -5,29 +5,10 @@ import { useSelector, useDispatch } from "react-redux";
 
 import {
   Box,
+  Typography,
   Tab,
   Tabs,
   Grid,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material";
-
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-import MuiAccordion from "@mui/material/Accordion";
-import MuiAccordionSummary from "@mui/material/AccordionSummary";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import Typography from "@mui/material/Typography";
-import {
   Button,
   IconButton,
   Menu,
@@ -35,10 +16,23 @@ import {
   FormControl,
   Select,
   OutlinedInput,
-  InputLabel,
-  Avatar,
-  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from "@mui/material";
+
+import MuiAccordion from "@mui/material/Accordion";
+import MuiAccordionSummary from "@mui/material/AccordionSummary";
+import MuiAccordionDetails from "@mui/material/AccordionDetails";
+import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
+import AddIcon from "@mui/icons-material/Add";
+import GridOnIcon from "@mui/icons-material/GridOn";
 
 import CommonTools from "../CommonTools";
 import WorkTree from "../WorkTree";
@@ -46,21 +40,7 @@ import DimensionLayoutDialog from "../Dialogs/DimensionLayoutDialog";
 import DatabaseConnectDialog from "../Dialogs/DatabaseConnectDialog";
 import SelectMembersDialog from "../Dialogs/SelectMembersDialog";
 
-import AddIcon from "@mui/icons-material/Add";
-import GridOnIcon from "@mui/icons-material/GridOn";
-
-import { pivot } from "../../slices/query";
 import { getTableData, setReportPivotInfo } from "../../slices/report";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
-
-// const useStyles = makeStyles({
-//   grid: {
-//     order: "2px solid #6F6B68",
-//     margin: "10px",
-//     height: "870px",
-//   },
-// });
 
 const useStyles = makeStyles()((theme) => {
   return {
@@ -69,10 +49,37 @@ const useStyles = makeStyles()((theme) => {
       height: "100%",
     },
     main: {
-      minHeight: "75vh"
+      minHeight: "75vh",
+    },
+    tab: {
+      fontWeight: 700,
+    },
+    layoutItem: {
+      borderBottom: "1px solid grey",
+    },
+    title: {
+      width: "100%",
+      backgroundColor: "#C5C1C5",
+      paddingLeft: "10px",
+      fontWeight: "900",
     },
   };
 });
+
+const LayoutItem = ({ name }) => {
+  return (
+    <ListItem
+      sx={{ borderBottom: "1px solid grey" }}
+      secondaryAction={
+        <IconButton>
+          <AddIcon />
+        </IconButton>
+      }
+    >
+      <ListItemText>{name}</ListItemText>
+    </ListItem>
+  );
+};
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -136,11 +143,8 @@ const Report = () => {
     (state) => state.report.reportExpandedPages
   );
 
-  const pivotResult = useSelector((state) => state.report.reportResultOfPivot);
-  console.log("pivotResult Initial", pivotResult);
   const displayRows = expandedRows.length ? expandedRows : rows;
   const displayCols = expandedCols.length ? expandedCols : cols;
-  const displayPages = expandedPages.length ? expandedPages : pages;
 
   React.useEffect(() => {
     if (pages.length) setSelectedPage(pages[0].id);
@@ -150,41 +154,10 @@ const Report = () => {
     if (expandedPages.length) setSelectedPage(pages[0].id);
   }, [expandedPages]);
 
-  // React.useEffect(() => {
-  //   if (pivotResult) {
-  //     const doc = new jsPDF();
-  //     doc.text(`Pages: ${selectedPage}`, 15, 15);
-  //     if (typeof doc.autoTable === "function" && !doc.autoTable.started) {
-  //       doc.autoTable({
-  //         html: "#export-data",
-  //         startY: 20,
-  //         didDrawPage: () => {
-  //           doc.save("data1.pdf");
-  //           console.log("############After doc.save");
-  //         }
-  //       });
-  //     }
-  //   }
-  // }, [pivotResult, selectedPage]);
-
   const handleSelectedPageChanged = (e) => {
-    // console.log("handleSelectedPageChanged", e.target.value)
     dispatch(setReportPivotInfo({ kind: "pages", data: [[e.target.value]] }));
     setSelectedPage(e.target.value);
   };
-
-  console.log(
-    "rows, cols, pages, expandedRows, expandedCols, expandedPages, displayRows, displayCols, displayPages",
-    rows,
-    cols,
-    pages,
-    expandedRows,
-    expandedCols,
-    expandedPages,
-    displayRows,
-    displayCols,
-    displayPages
-  );
 
   React.useEffect(() => {
     if (pages.length > 0) {
@@ -249,38 +222,20 @@ const Report = () => {
         scrollButtons="auto"
         aria-label="scrollable auto tabs example"
       >
-        <Tab label="Report Generator" style={{ fontWeight: 700 }} />
+        <Tab label="Report Generator" className={classes.tab} />
       </Tabs>
       <CommonTools />
       <Box sx={{ display: "flex" }}>
         <WorkTree />
         <Box component="main" sx={{ flexGrow: 1 }} className={classes.main}>
-          <Box
-            style={{
-              width: "100%",
-              backgroundColor: "#C5C1C5",
-              paddingLeft: "10px",
-              fontWeight: "900",
-            }}
-          >
-            Report Builder
-          </Box>
+          <Box className={classes.title}>Report Builder</Box>
           <Grid container>
-            <Grid item xs={2} sx={{}}>
+            <Grid item xs={2}>
               <Box className={classes.grid} style={{ marginRight: "7px" }}>
-                <List sx={{}}>
+                <List>
+                  <LayoutItem name="Header" />
                   <ListItem
-                    sx={{ borderBottom: "1px solid grey" }}
-                    secondaryAction={
-                      <IconButton>
-                        <AddIcon />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemText>Header</ListItemText>
-                  </ListItem>
-                  <ListItem
-                    sx={{ borderBottom: "1px solid grey" }}
+                    className={classes.layoutItem}
                     secondaryAction={
                       <IconButton
                         onClick={handleClick}
@@ -306,7 +261,7 @@ const Report = () => {
                           filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
                           mt: 1.5,
                           minWidth: "170px",
-                          width:"11%",
+                          width: "11%",
                           "& .MuiAvatar-root": {
                             width: 32,
                             height: 32,
@@ -331,44 +286,27 @@ const Report = () => {
                       anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
                     >
                       <MenuItem onClick={() => setDatabaseConnectDialog(true)}>
-                        <GridOnIcon /> <Typography sx={{marginLeft: "10px", fontWeight:"600", fontSize:"18px"}}> Grid </Typography>
+                        <GridOnIcon />{" "}
+                        <Typography
+                          sx={{
+                            marginLeft: "10px",
+                            fontWeight: "600",
+                            fontSize: "18px",
+                          }}
+                        >
+                          {" "}
+                          Grid{" "}
+                        </Typography>
                       </MenuItem>
                     </Menu>
                     <ListItemText>Body</ListItemText>
-                    <DatabaseConnectDialog
-                      open={databaseConnectDialog}
-                      handleDatabaseConnectDialogClose={
-                        handleDatabaseConnectDialogClose
-                      }
-                      handleDatabaseConnectDialogOK={
-                        handleDatabaseConnectDialogOK
-                      }
-                    />
-                    <SelectMembersDialog
-                      open={selectMembersDialog}
-                      kind={kind}
-                      table={selectedTable}
-                      handleSelectMembersDialogClose={
-                        handleSelectMembersDialogClose
-                      }
-                      handleSelectMembersDialogOK={handleSelectMembersDialogOK}
-                    />
                   </ListItem>
-                  <ListItem
-                    sx={{ borderBottom: "1px solid grey" }}
-                    secondaryAction={
-                      <IconButton>
-                        <AddIcon />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemText>Footer</ListItemText>
-                  </ListItem>
+                  <LayoutItem name="Footer" />
                 </List>
               </Box>
             </Grid>
             <Grid item xs={7}>
-              <Box className={classes.grid} style={{padding:"10px"}}>
+              <Box className={classes.grid} style={{ padding: "10px" }}>
                 {pages.length ? (
                   <Box>
                     <Button
@@ -393,6 +331,7 @@ const Report = () => {
                       value={pages[0].id}
                       onClick={(e) => {
                         setKind("pages");
+                        setSelectedTable(e.target.value);
                         dispatch(getTableData(e.target.value));
                         setSelectMembersDialog(true);
                       }}
@@ -414,8 +353,8 @@ const Report = () => {
                       input={<OutlinedInput label="" />}
                       // MenuProps={MenuProps}
                     >
-                      {expandedPages.map((page) => (
-                        <MenuItem key={page.id} value={page}>
+                      {expandedPages.map((page, index) => (
+                        <MenuItem key={index} value={page}>
                           {page.content}
                         </MenuItem>
                       ))}
@@ -425,7 +364,7 @@ const Report = () => {
                   <></>
                 )}
 
-                {/* Grid with Drag and Drop function */}
+                {/* Grid function */}
                 {displayRows.length && displayCols.length ? (
                   <TableContainer>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -433,18 +372,9 @@ const Report = () => {
                         <TableRow>
                           <TableCell />
                           <TableCell />
-                          {/* {rows.map((row, index) => {
-                          // console.log(row);
-                          return (
-                            <TableCell align="right">
-                              {String.fromCharCode(65 + index)}
-                            </TableCell>
-                          );
-                        })} */}
                           {displayCols.map((col, index) => {
-                            // console.log(row);
                             return (
-                              <TableCell align="right">
+                              <TableCell align="right" key={index}>
                                 {String.fromCharCode(65 + index)}
                               </TableCell>
                             );
@@ -458,24 +388,9 @@ const Report = () => {
                         <TableRow>
                           <TableCell />
                           <TableCell />
-                          {/* {rows.map((row) => {
-                          return (
-                            <TableCell align="right">
-                              <Button
-                                value={row.id}
-                                onClick={(e) => {
-                                  setKind("rows");
-                                  setSelectedTable(e.target.value);
-                                }}
-                              >
-                                {row.content}
-                              </Button>
-                            </TableCell>
-                          );
-                        })} */}
-                          {displayCols.map((col) => {
+                          {displayCols.map((col, index) => {
                             return (
-                              <TableCell align="right">
+                              <TableCell align="right" key={index}>
                                 <Button
                                   value={col.id}
                                   onClick={(e) => {
@@ -492,38 +407,14 @@ const Report = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {/* {cols.map((col, index) => {
-                        return (
-                          <TableRow>
-                            <TableCell>{index + 1}</TableCell>
-                            <TableCell align="right">
-                              <Button
-                                value={col.id}
-                                onClick={(e) => {
-                                  // console.log("cell button clicked", e.target.value)
-                                  setKind("cols")
-                                  setSelectedTable(e.target.value);
-                                }}
-                              >
-                                {col.content}
-                              </Button>
-                            </TableCell>
-                            {rows.map((row, index) => {
-                              return <TableCell align="right">#</TableCell>;
-                            })}
-                            <TableCell />
-                          </TableRow>
-                        );
-                      })} */}
                         {displayRows.map((row, index) => {
                           return (
-                            <TableRow>
+                            <TableRow key={index}>
                               <TableCell>{index + 1}</TableCell>
                               <TableCell align="right">
                                 <Button
                                   value={row.id}
                                   onClick={(e) => {
-                                    // console.log("cell button clicked", e.target.value)
                                     setKind("rows");
                                     setSelectedTable(e.target.value);
                                   }}
@@ -532,7 +423,7 @@ const Report = () => {
                                 </Button>
                               </TableCell>
                               {displayRows.map((row, index) => {
-                                return <TableCell align="right">#</TableCell>;
+                                return <TableCell align="right" key={index}>#</TableCell>;
                               })}
                               <TableCell />
                             </TableRow>
@@ -546,8 +437,8 @@ const Report = () => {
                           </TableCell>
                           <TableCell />
                           <TableCell />
-                          {displayRows.map(() => {
-                            return <TableCell />;
+                          {displayRows.map((row, index) => {
+                            return <TableCell key={index}/>;
                           })}
                         </TableRow>
                       </TableBody>
@@ -635,6 +526,18 @@ const Report = () => {
           </Grid>
         </Box>
       </Box>
+      <DatabaseConnectDialog
+        open={databaseConnectDialog}
+        handleDatabaseConnectDialogClose={handleDatabaseConnectDialogClose}
+        handleDatabaseConnectDialogOK={handleDatabaseConnectDialogOK}
+      />
+      <SelectMembersDialog
+        open={selectMembersDialog}
+        kind={kind}
+        table={selectedTable}
+        handleSelectMembersDialogClose={handleSelectMembersDialogClose}
+        handleSelectMembersDialogOK={handleSelectMembersDialogOK}
+      />
     </Box>
   );
 };

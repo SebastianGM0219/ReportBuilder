@@ -15,7 +15,7 @@ const initialState = {
   reportExpandedRows: [],
   reportExpandedCols: [],
   reportExpandedPages: [],
-  reportHistory: []
+  reportHistory: [],
 };
 
 // export const connectDB = createAsyncThunk(
@@ -32,10 +32,13 @@ export const saveLog = createAsyncThunk("/saveLog", async (logInfo) => {
   return res.data;
 });
 
-export const reportHistory = createAsyncThunk("/reportHistory", async (userInfo) => {
-  const res = await ReportService.reportHistory(userInfo);
-  return res.data;
-});
+export const reportHistory = createAsyncThunk(
+  "/reportHistory",
+  async (userInfo) => {
+    const res = await ReportService.reportHistory(userInfo);
+    return res.data;
+  }
+);
 
 export const getTables = createAsyncThunk("/getTables", async (dbInfo) => {
   const res = await ReportService.getTables(dbInfo);
@@ -51,7 +54,6 @@ export const getTableData = createAsyncThunk("/getTableData", async (table) => {
 });
 
 export const pivot = createAsyncThunk("/pivot", async (pivotInfo) => {
-  console.log("1111111111111111111111111111111", pivotInfo);
   const res = await ReportService.pivot(pivotInfo);
   return res.data;
 });
@@ -108,7 +110,7 @@ export const reportSlice = createSlice({
       // console.log("setReportPivotInfo", action.payload);
       const { kind, data } = action.payload;
       // console.log("1233333333333333333", kind, data);
-      state.reportPivotInfo[kind] = data
+      state.reportPivotInfo[kind] = data;
       // state.reportPages = action.payload;
     },
 
@@ -121,7 +123,7 @@ export const reportSlice = createSlice({
         expandedCols,
         expandedPages,
         tableData,
-        pivotInfo
+        pivotInfo,
       } = action.payload;
       state.reportRows = rows;
       state.reportCols = cols;
@@ -130,52 +132,42 @@ export const reportSlice = createSlice({
       state.reportExpandedCols = expandedCols;
       state.reportExpandedPages = expandedPages;
       state.reportTableData = tableData;
-      state.reportPivotInfo = pivotInfo
-    }
+      state.reportPivotInfo = pivotInfo;
+    },
   },
-  extraReducers: {
-    [getTables.fulfilled]: (state, action) => {
-      const { data, success } = action.payload;
-      console.log("In report slice getTable ", action.payload)
-      if(success) {
-        let formattedData = [];
-        data.forEach((item) => {
-          formattedData.push({ id: item, content: item });
-        });
-        console.log("In report slice tables", formattedData)
-        state.reportTables = formattedData;
-        state.reportCols = [];
-        state.reportRows = [];
-        state.reportDimTable = [];
-        state.reportPages = [];
-      } else {
-        console.log("getTables failed")
-      }
-      return state;
-    },
-    [saveLog.fulfilled]: (state, action) => {
-      console.log("Response of saveLog request", action.payload)
-      state.reportHistory.unshift(action.payload);
-      return state;
-    },
-    [reportHistory.fulfilled]: (state, action) => {
-      console.log("Response of reportHistroy request", action.payload)
-      state.reportHistory = action.payload;
-      return state;
-    },
-    [getTableData.fulfilled]: (state, action) => {
-      for (const key in action.payload) {
-        // console.log(key, action.payload[key])
-        state.reportTableData[key] = action.payload[key];
-      }
-      // console.log("getTableData fulfilled", state.reportTableData)
-      return state;
-    },
-    [pivot.fulfilled]: (state, action) => {
-      // console.log("Hey, it's pivot action.payload", action.payload);
-      state.reportResultOfPivot = action.payload.Return
-      console.log("This is result from backend!", state.reportResultOfPivot)
-    },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getTables.fulfilled, (state, action) => {
+        const { data, success } = action.payload;
+        if (success) {
+          let formattedData = [];
+          data.forEach((item) => {
+            formattedData.push({ id: item, content: item });
+          });
+          state.reportTables = formattedData;
+          state.reportCols = [];
+          state.reportRows = [];
+          state.reportDimTable = [];
+          state.reportPages = [];
+        } else {
+          console.log("getTables failed");
+        }
+      })
+      .addCase(saveLog.fulfilled, (state, action) => {
+        state.reportHistory.unshift(action.payload);
+      })
+      .addCase(reportHistory.fulfilled, (state, action) => {
+        state.reportHistory = action.payload;
+      })
+      .addCase(getTableData.fulfilled, (state, action) => {
+        for (const key in action.payload) {
+          state.reportTableData[key] = action.payload[key];
+        }
+        return state;
+      })
+      .addCase(pivot.fulfilled, (state, action) => {
+        state.reportResultOfPivot = action.payload.Return;
+      });
   },
 });
 
@@ -192,6 +184,6 @@ export const {
   setReportExpandedRows,
   setReportExpandedCols,
   setReportExpandedPages,
-  setSavedData
+  setSavedData,
 } = reportSlice.actions;
 export default reportSlice.reducer;

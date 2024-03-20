@@ -1,11 +1,13 @@
 import React from "react";
-
 import { useSelector, useDispatch } from "react-redux";
 
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
+import {
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import FolderOpenOutlinedIcon from "@mui/icons-material/FolderOpenOutlined";
@@ -17,14 +19,13 @@ import DraftsIcon from "@mui/icons-material/Drafts";
 import { setCurrentAsideItem } from "../../slices/utility";
 
 const AsideListItem = (props) => {
-  let iconToRender;
-
   const dispatch = useDispatch();
 
   const currentAsideItem = useSelector(
     (state) => state.utility.currentAsideItem
   );
 
+  let iconToRender;
   switch (props.text) {
     case "Home":
       iconToRender = <HomeOutlinedIcon />;
@@ -62,18 +63,9 @@ const AsideListItem = (props) => {
       disablePadding
       sx={{ display: "block" }}
       onClick={handleCurrentAsideItem}
-      selected = {props.text === currentAsideItem}
+      selected={props.text === currentAsideItem}
     >
-      <ListItemButton
-        sx={{
-          minHeight: 60,
-          justifyContent: "center",
-          px: 2.5,
-          display: "flex",
-          flexDirection: "column",
-        }}
-        id={props.text}
-      >
+      <ListItemButton sx={styles.button} id={props.text}>
         <ListItemIcon
           sx={{
             minWidth: 0,
@@ -89,6 +81,16 @@ const AsideListItem = (props) => {
       </ListItemButton>
     </ListItem>
   );
+};
+
+const styles = {
+  button: {
+    minHeight: 60,
+    justifyContent: "center",
+    px: 2.5,
+    display: "flex",
+    flexDirection: "column",
+  },
 };
 
 export default AsideListItem;
