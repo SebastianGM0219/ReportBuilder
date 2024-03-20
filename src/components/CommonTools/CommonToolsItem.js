@@ -233,7 +233,7 @@ const CommonToolsItem = (props) => {
                                 {}
                               );
 
-                              colParentsCount = colOrder.forEach((combination) => ({
+                              colParentsCount = colOrder.map((combination) => ({
                                 key: combination,
                                 value: colParentsCount[combination] || {
                                   count: 0,
@@ -241,11 +241,11 @@ const CommonToolsItem = (props) => {
                                 },
                               }));
 
-                              resultRows = resultRows.forEach((row) => {
+                              resultRows = resultRows.map((row) => {
                                 const key = Object.keys(row)[1];
                                 return row[key];
                               });
-                              resultCols = resultCols.forEach((col) => {
+                              resultCols = resultCols.map((col) => {
                                 const key = Object.keys(col)[1];
                                 return col[key];
                               });
@@ -400,7 +400,7 @@ const CommonToolsItem = (props) => {
                                 {}
                               );
 
-                              colParentsCount = colOrder.forEach((combination) => ({
+                              colParentsCount = colOrder.map((combination) => ({
                                 key: combination,
                                 value: colParentsCount[combination] || {
                                   count: 0,
@@ -408,21 +408,17 @@ const CommonToolsItem = (props) => {
                                 },
                               }));
 
-                              resultRows = resultRows.forEach((row) => {
+                              resultRows = resultRows.map((row) => {
                                 const key = Object.keys(row)[1];
                                 return row[key];
                               });
-                              resultCols = resultCols.forEach((col) => {
+                              resultCols = resultCols.map((col) => {
                                 const key = Object.keys(col)[1];
                                 return col[key];
                               });
                               resultCols.unshift("");
 
                               resultRows.forEach((row, rowIndex) => {
-                                console.log(
-                                  "resultData[rowIndex]",
-                                  resultData[rowIndex]
-                                );
                                 modifiedData.push([
                                   row,
                                   ...resultData[rowIndex],
